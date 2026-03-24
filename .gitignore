@@ -1,0 +1,23 @@
+# 大文件
+*.onnx
+*.onnx.data
+*.pdb
+*.zip
+
+# ONNX Runtime
+3rdparty/onnxruntime-win/
+
+# 构建目录
+build/
+cmake-build-debug/
+build-*/
+
+# IDE
+.idea/
+.qtcreator/
+.claude/
+
+# 输出
+*.exe
+*.dll
+windows-package/
