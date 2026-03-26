@@ -21,3 +21,10 @@ build-*/
 *.exe
 *.dll
 windows-package/
+
+# IDE 文件
+.idea/workspace.xml
+.vscode/
+
+# 子模块修改（临时）
+3rdparty/qt-material/
