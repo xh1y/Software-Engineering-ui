@@ -21,12 +21,18 @@ endif()
 # ==============================================================================
 # 1. 【核心防御】统一 Protobuf 战线
 # ==============================================================================
-find_package(Protobuf REQUIRED)
-message(STATUS "Found System Protobuf: ${Protobuf_LIBRARIES}")
-
-set(SPM_USE_BUILTIN_PROTOBUF OFF CACHE BOOL "Force use system protobuf" FORCE)
-set(SPM_ENABLE_PROTOBUF_SHARED ON CACHE BOOL "Use shared protobuf" FORCE)
-set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "" FORCE)
+if(WIN32)
+    # Windows: 使用内置 Protobuf（避免 MinGW 兼容性问题）
+    message(STATUS "Windows detected: using builtin protobuf for tokenizers-cpp")
+    set(SPM_USE_BUILTIN_PROTOBUF ON CACHE BOOL "Use builtin protobuf" FORCE)
+else()
+    # Linux/macOS: 使用系统 Protobuf
+    find_package(Protobuf REQUIRED)
+    message(STATUS "Found System Protobuf: ${Protobuf_LIBRARIES}")
+    set(SPM_USE_BUILTIN_PROTOBUF OFF CACHE BOOL "Force use system protobuf" FORCE)
+    set(SPM_ENABLE_PROTOBUF_SHARED ON CACHE BOOL "Use shared protobuf" FORCE)
+    set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "" FORCE)
+endif()
 
 # ==============================================================================
 # 2. 查找 Qt (补回了 Sql 模块！！)
@@ -153,7 +159,6 @@ add_dependencies(qt-try translations)
 # 6. 【关键】链接库与包含头文件
 # ==============================================================================
 target_link_libraries(qt-try PRIVATE
-        ${Protobuf_LIBRARIES}
         Qt6::Widgets
         Qt6::Core
         Qt6::Gui
@@ -162,6 +167,10 @@ target_link_libraries(qt-try PRIVATE
         ${ONNXRUNTIME_LIB}
         tokenizers_cpp
 )
+
+if(NOT WIN32)
+    target_link_libraries(qt-try PRIVATE ${Protobuf_LIBRARIES})
+endif()
 
 # 如果使用了qt-material，链接库
 if(HAVE_QT_MATERIAL)
