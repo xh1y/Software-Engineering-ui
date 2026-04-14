@@ -9,7 +9,16 @@ echo "================================"
 # Arch Linux
 if command -v pacman &> /dev/null; then
     echo "检测到 Arch Linux"
-    sudo pacman -S --needed mingw-w64-gcc mingw-w64-cmake mingw-w64-qt6-base mingw-w64-qt6-tools mingw-w64-protobuf
+    # 只安装基础工具链（官方仓库有）
+    sudo pacman -S --needed mingw-w64-gcc mingw-w64-binutils mingw-w64-headers mingw-w64-crt
+    
+    echo ""
+    echo "⚠️  MinGW Qt6 需要从 AUR 安装，耗时 2-4 小时"
+    echo "推荐使用 Docker 方案："
+    echo "  1. docker pull a12e/docker-qt6-windows:6.5-mingw-w64-ltsc2022"
+    echo "  2. ./build-windows.sh"
+    echo ""
+    echo "或者使用 GitHub Actions 云端编译"
     
 # Ubuntu/Debian
 elif command -v apt &> /dev/null; then
@@ -24,7 +33,7 @@ else
 fi
 
 echo ""
-echo "✅ MinGW-w64 安装完成！"
+echo "✅ MinGW-w64 基础工具链安装完成！"
 echo ""
 echo "测试编译器:"
 x86_64-w64-mingw32-g++ --version | head -1
