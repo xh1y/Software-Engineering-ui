@@ -20,6 +20,27 @@ if ! command -v x86_64-w64-mingw32-g++ &> /dev/null; then
     exit 1
 fi
 
+# 检查 MinGW Qt6
+if [ ! -f "/usr/x86_64-w64-mingw32/lib/cmake/Qt6/Qt6Config.cmake" ]; then
+    echo "❌ MinGW Qt6 未找到"
+    echo ""
+    echo "你需要先编译安装 MinGW Qt6："
+    echo "  ./build-mingw-qt6.sh"
+    echo ""
+    echo "⚠️  这将花费 2-4 小时！"
+    echo ""
+    read -p "现在运行吗？ (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        ./build-mingw-qt6.sh
+        exit 0
+    else
+        exit 1
+    fi
+fi
+
+echo "✅ 找到 MinGW Qt6"
+
 # 检查 ONNX
 if [ ! -d "$ONNX_DIR" ]; then
     echo "📦 ONNX Runtime 未找到，请先运行: ./setup-cross-build.sh"
@@ -38,6 +59,9 @@ set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+# Arch Linux AUR MinGW Qt6 路径
+set(CMAKE_PREFIX_PATH /usr/x86_64-w64-mingw32/lib/cmake)
 EOF
 
 # 清理旧构建

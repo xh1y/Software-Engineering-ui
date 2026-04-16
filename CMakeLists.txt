@@ -78,6 +78,21 @@ else ()
 endif ()
 
 # ==============================================================================
+# 3.5 配置 tokenizers-cpp 的 Rust 目标平台（解决 MinGW/MSVC 兼容性问题）
+# ==============================================================================
+if(WIN32)
+  if(MINGW)
+    # MinGW 工具链：使用 gnu 目标
+    set(TOKENIZERS_CPP_CARGO_TARGET x86_64-pc-windows-gnu CACHE STRING "Rust target triple for tokenizers-cpp" FORCE)
+    message(STATUS "MinGW detected: setting Rust target to ${TOKENIZERS_CPP_CARGO_TARGET}")
+  else()
+    # MSVC 工具链：使用 msvc 目标
+    set(TOKENIZERS_CPP_CARGO_TARGET x86_64-pc-windows-msvc CACHE STRING "Rust target triple for tokenizers-cpp" FORCE)
+    message(STATUS "MSVC detected: setting Rust target to ${TOKENIZERS_CPP_CARGO_TARGET}")
+  endif()
+endif()
+
+# ==============================================================================
 # 4. 添加子模块 (tokenizers-cpp)
 # ==============================================================================
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/tokenizers-cpp/CMakeLists.txt")
