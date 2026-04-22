@@ -1,0 +1,62 @@
+# 忽略构建目录
+build*/
+build-*/
+build-mxe/
+
+# 忽略 IDE 文件
+.idea/
+.vscode/
+*.user
+*.user.*
+
+# 忽略 Qt 生成文件
+*.pro.user
+*.autosave
+
+# 忽略缓存和临时文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# 忽略系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 忽略大文件
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
+
+# 忽略日志
+*.log
+logs/
+
+# 忽略本地配置
+.env
+.env.local
+.env.*.local
+
+# 忽略 Git
+.git/
+.gitignore
+.gitmodules
+
+# 忽略模型缓存
+model_cache/
+
+# 忽略测试数据
+test_output/

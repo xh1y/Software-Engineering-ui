@@ -52,15 +52,33 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_PREFIX_PATH $MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake)
+
+# 禁用有问题的系统库查找
+set(CMAKE_DISABLE_FIND_PACKAGE_TIFF TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_WebP TRUE)
+set(CMAKE_DISABLE_FIND_PACKAGE_MySQL TRUE)
 EOF
 
 echo "🔧 配置 CMake..."
 cd "$BUILD_DIR"
+
+# 设置 Qt6 路径
+export Qt6_DIR="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake/Qt6"
+export Qt6Core_DIR="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake/Qt6Core"
+export Qt6Widgets_DIR="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake/Qt6Widgets"
+export Qt6Gui_DIR="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake/Qt6Gui"
+export Qt6Sql_DIR="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake/Qt6Sql"
+export Qt6Concurrent_DIR="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake/Qt6Concurrent"
+export Qt6LinguistTools_DIR="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake/Qt6LinguistTools"
+
+# 禁用有问题的插件
 cmake "$PROJECT_ROOT" \
     -DCMAKE_TOOLCHAIN_FILE="$BUILD_DIR/toolchain.cmake" \
     -DCMAKE_BUILD_TYPE=Release \
     -DONNX_INCLUDE_DIR="$ONNX_DIR/include" \
-    -DONNXRUNTIME_LIB="$ONNX_DIR/lib/onnxruntime.lib"
+    -DONNXRUNTIME_LIB="$ONNX_DIR/lib/onnxruntime.lib" \
+    -DCMAKE_PREFIX_PATH="$MXE_DIR/usr/x86_64-w64-mingw32.static/qt6/lib/cmake" \
+    -DBUILD_SHARED_LIBS=OFF
 
 echo "🔨 开始编译..."
 make -j$(nproc)

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  optikg:
+    build:
+      context: ..
+      dockerfile: docker-build/Dockerfile
+    container_name: optikg-app
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - QT_DEBUG_PLUGINS=0
+      - QT_QPA_PLATFORM=xcb
+    volumes:
+      # X11 相关挂载
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${HOME}/.Xauthority:/home/appuser/.Xauthority:ro
+      # 数据持久化
+      - ./data:/app/data:rw
+      # 模型缓存（可选）
+      - ./model_cache:/home/appuser/.cache/optikg:rw
+    network_mode: host
+    stdin_open: true
+    tty: true
+    # 仅在 Linux 上需要 privileged，Windows/Mac 不需要
+    privileged: ${PRIVILEGED:-false}
+    # 设置图形界面支持
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+          # 仅在需要 GPU 时启用
+    # 健康检查（可选）
+    healthcheck:
+      test: ["CMD", "pgrep", "qt-try"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
