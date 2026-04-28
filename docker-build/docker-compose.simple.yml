@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  optikg:
+    build:
+      context: ..
+      dockerfile: docker-build/Dockerfile.simple
+      network: host  # 使用主机网络构建，避免桥接网络问题
+    container_name: optikg-app-simple
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - QT_DEBUG_PLUGINS=0
+      - QT_QPA_PLATFORM=xcb
+    volumes:
+      # X11 相关挂载
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      # 数据持久化
+      - ./data:/app/data:rw
+    network_mode: host  # 运行也使用主机网络
+    stdin_open: true
+    tty: true

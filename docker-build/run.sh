@@ -117,28 +117,81 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# 检查 Docker 网络状态
+echo ""
+echo "🔍 检查 Docker 网络状态..."
+if ! docker network ls &> /dev/null; then
+    echo "⚠️  Docker 网络访问异常，尝试修复..."
+    echo "   如果是 Linux 系统，请尝试: sudo systemctl restart docker"
+    echo "   或执行: docker network prune"
+fi
+
 echo ""
 echo "🔨 开始构建 Docker 镜像（首次运行较慢，约5-10分钟）..."
-echo "   如果中途失败，请检查网络连接后重试"
+echo "   如果中途失败，会自动尝试简化版构建"
 echo ""
 
-# 构建镜像（如果失败，尝试不带缓存）
-if ! $COMPOSE_CMD build --progress plain; then
-    echo "⚠️  构建失败，尝试不带缓存重新构建..."
-    $COMPOSE_CMD build --no-cache --progress plain || {
-        echo "❌ Docker 构建失败，请检查错误信息"
+# 函数：尝试构建
+try_build() {
+    local compose_file=$1
+    local description=$2
+
+    echo ""
+    echo "🔄 尝试使用 $description 构建..."
+    echo "   使用的配置文件: $compose_file"
+    echo ""
+
+    if $COMPOSE_CMD -f "$compose_file" build --progress plain; then
+        echo "✅ $description 构建成功！"
+        return 0
+    else
+        echo "⚠️  $description 构建失败"
+        return 1
+    fi
+}
+
+# 首先尝试简化版构建（更可靠）
+BUILD_SUCCESS=false
+COMPOSE_FILE="docker-compose.simple.yml"
+
+if try_build "$COMPOSE_FILE" "简化版配置"; then
+    BUILD_SUCCESS=true
+else
+    echo ""
+    echo "🔄 简化版构建失败，尝试原版构建（可能需要更多依赖）..."
+    COMPOSE_FILE="docker-compose.yml"
+
+    if try_build "$COMPOSE_FILE" "原版配置"; then
+        BUILD_SUCCESS=true
+    else
+        echo ""
+        echo "❌ 所有构建尝试都失败了"
+        echo ""
+        echo "🔥 常见问题解决方案："
+        echo "   1. Docker 网络问题: sudo systemctl restart docker (Linux)"
+        echo "   2. 清理 Docker: docker system prune -a"
+        echo "   3. 检查磁盘空间: df -h"
+        echo "   4. 增加 Docker 内存（Windows/Mac Docker Desktop 设置）"
+        echo "   5. 关闭 VPN 或代理"
+        echo ""
+        echo "📋 手动构建命令:"
+        echo "   cd $SCRIPT_DIR"
+        echo "   docker build -f Dockerfile.simple -t optikg .."
+        echo "   docker run -e DISPLAY=\$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix optikg"
+        echo ""
         exit 1
-    }
+    fi
 fi
 
 echo ""
 echo "✅ 构建成功！启动应用程序..."
+echo "   使用的配置: $COMPOSE_FILE"
 echo "   首次启动可能需要几秒钟"
 echo "   如果窗口没有弹出，请检查 Docker Desktop 是否运行"
 echo ""
 
 # 启动容器
-$COMPOSE_CMD up --force-recreate
+$COMPOSE_CMD -f "$COMPOSE_FILE" up --force-recreate
 
 echo ""
 echo "========================================="
@@ -156,6 +209,7 @@ echo ""
 echo "提示："
 echo "   - 数据保存在 ./data 目录"
 echo "   - 重新运行: ./run.sh"
-echo "   - 仅启动后端: $COMPOSE_CMD up -d"
-echo "   - 查看日志: $COMPOSE_CMD logs -f"
+echo "   - 仅启动后端: $COMPOSE_CMD -f $COMPOSE_FILE up -d"
+echo "   - 查看日志: $COMPOSE_CMD -f $COMPOSE_FILE logs -f"
+echo "   - 当前使用配置: $COMPOSE_FILE"
 echo ""

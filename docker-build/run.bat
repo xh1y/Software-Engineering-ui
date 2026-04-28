@@ -61,26 +61,70 @@ set QT_X11_NO_MITSHM=1
 
 echo.
 echo 🔨 开始构建 Docker 镜像（首次运行较慢，约5-10分钟）...
-echo    如果中途失败，请检查网络连接后重试
+echo    如果中途失败，会自动尝试简化版构建
 echo.
 
-REM 构建镜像
-%COMPOSE_CMD% build --progress plain
-if %errorlevel% neq 0 (
-    echo.
-    echo ⚠️  构建失败，尝试不带缓存重新构建...
-    echo.
-    %COMPOSE_CMD% build --no-cache --progress plain
-    if %errorlevel% neq 0 (
-        echo.
-        echo ❌ Docker 构建失败，请检查错误信息
-        pause
-        exit /b 1
-    )
+REM 首先尝试简化版构建
+set COMPOSE_FILE=docker-compose.simple.yml
+echo.
+echo 🔄 尝试使用简化版构建...
+echo    使用的配置文件: %COMPOSE_FILE%
+echo.
+
+%COMPOSE_CMD% -f %COMPOSE_FILE% build --progress plain
+if %errorlevel% equ 0 (
+    echo ✅ 简化版构建成功！
+    goto :build_success
 )
+
+REM 简化版失败，尝试原版
+echo.
+echo ⚠️  简化版构建失败，尝试原版构建...
+set COMPOSE_FILE=docker-compose.yml
+echo    使用的配置文件: %COMPOSE_FILE%
+echo.
+
+%COMPOSE_CMD% -f %COMPOSE_FILE% build --progress plain
+if %errorlevel% equ 0 (
+    echo ✅ 原版构建成功！
+    goto :build_success
+)
+
+REM 原版也失败，尝试不带缓存
+echo.
+echo ⚠️  原版构建失败，尝试不带缓存重新构建...
+echo.
+
+%COMPOSE_CMD% -f %COMPOSE_FILE% build --no-cache --progress plain
+if %errorlevel% equ 0 (
+    echo ✅ 不带缓存构建成功！
+    goto :build_success
+)
+
+REM 所有尝试都失败
+echo.
+echo ❌ 所有构建尝试都失败了
+echo.
+echo 🔥 常见问题解决方案：
+echo    1. 重启 Docker Desktop
+echo    2. 清理 Docker: docker system prune -a
+echo    3. 检查磁盘空间
+echo    4. 在 Docker Desktop 设置中增加内存（至少 4GB）
+echo    5. 关闭 VPN 或代理
+echo.
+echo 📋 手动构建命令:
+echo    cd %CD%
+echo    docker build -f Dockerfile.simple -t optikg ..
+echo    docker run -e DISPLAY=host.docker.internal:0 -v /tmp/.X11-unix:/tmp/.X11-unix optikg
+echo.
+pause
+exit /b 1
+
+:build_success
 
 echo.
 echo ✅ 构建成功！启动应用程序...
+echo    使用的配置: %COMPOSE_FILE%
 echo    首次启动可能需要几秒钟
 echo    如果窗口没有弹出，请检查：
 echo    1. Docker Desktop 是否正在运行
@@ -89,7 +133,7 @@ echo    3. 防火墙是否允许 Docker 访问网络
 echo.
 
 REM 启动容器
-%COMPOSE_CMD% up --force-recreate
+%COMPOSE_CMD% -f %COMPOSE_FILE% up --force-recreate
 
 echo.
 echo =========================================
@@ -99,7 +143,8 @@ echo.
 echo 提示：
 echo    - 数据保存在 .\data 目录
 echo    - 重新运行: 双击 run.bat
-echo    - 仅启动后端: %COMPOSE_CMD% up -d
-echo    - 查看日志: %COMPOSE_CMD% logs -f
+echo    - 仅启动后端: %COMPOSE_CMD% -f %COMPOSE_FILE% up -d
+echo    - 查看日志: %COMPOSE_CMD% -f %COMPOSE_FILE% logs -f
+echo    - 当前使用配置: %COMPOSE_FILE%
 echo.
 pause
