@@ -52,16 +52,19 @@ EOF
 echo "🔧 配置 CMake..."
 cd "$BUILD_DIR"
 
+export CARGO_BUILD_TARGET=x86_64-pc-windows-gnu
+
 cmake "$PROJECT_ROOT" \
     -DCMAKE_TOOLCHAIN_FILE="$BUILD_DIR/toolchain.cmake" \
     -DCMAKE_BUILD_TYPE=Release \
     -DONNX_INCLUDE_DIR="$ONNX_DIR/include" \
     -DONNXRUNTIME_LIB="$ONNX_DIR/lib/onnxruntime.dll" \
     -DCMAKE_PREFIX_PATH="$MXE_DIR/usr/x86_64-w64-mingw32.shared/qt6/lib/cmake" \
-    -DBUILD_SHARED_LIBS=ON
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_CXX_FLAGS="-Wno-array-bounds -Wno-stringop-overflow"
 
 echo "🔨 开始编译..."
-make -j$(nproc)
+make
 
 echo ""
 echo "================================"
