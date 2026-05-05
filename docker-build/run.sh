@@ -150,36 +150,52 @@ try_build() {
     fi
 }
 
-# 首先尝试简化版构建（更可靠）
+# 尝试构建（顺序：Debian Bullseye → Qt官方镜像 → 简化版 → 原版）
 BUILD_SUCCESS=false
-COMPOSE_FILE="docker-compose.simple.yml"
+COMPOSE_FILE="docker-compose.debian-bullseye.yml"
 
-if try_build "$COMPOSE_FILE" "简化版配置"; then
+if try_build "$COMPOSE_FILE" "Debian Bullseye配置（最稳定）"; then
     BUILD_SUCCESS=true
 else
     echo ""
-    echo "🔄 简化版构建失败，尝试原版构建（可能需要更多依赖）..."
-    COMPOSE_FILE="docker-compose.yml"
+    echo "🔄 Debian Bullseye构建失败，尝试Qt官方镜像构建..."
+    COMPOSE_FILE="docker-compose.qt-official.yml"
 
-    if try_build "$COMPOSE_FILE" "原版配置"; then
+    if try_build "$COMPOSE_FILE" "Qt官方镜像配置"; then
         BUILD_SUCCESS=true
     else
         echo ""
-        echo "❌ 所有构建尝试都失败了"
-        echo ""
-        echo "🔥 常见问题解决方案："
-        echo "   1. Docker 网络问题: sudo systemctl restart docker (Linux)"
-        echo "   2. 清理 Docker: docker system prune -a"
-        echo "   3. 检查磁盘空间: df -h"
-        echo "   4. 增加 Docker 内存（Windows/Mac Docker Desktop 设置）"
-        echo "   5. 关闭 VPN 或代理"
-        echo ""
-        echo "📋 手动构建命令:"
-        echo "   cd $SCRIPT_DIR"
-        echo "   docker build -f Dockerfile.simple -t optikg .."
-        echo "   docker run -e DISPLAY=\$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix optikg"
-        echo ""
-        exit 1
+        echo "🔄 Qt官方镜像构建失败，尝试简化版构建..."
+        COMPOSE_FILE="docker-compose.simple.yml"
+
+        if try_build "$COMPOSE_FILE" "简化版配置"; then
+            BUILD_SUCCESS=true
+        else
+            echo ""
+            echo "🔄 简化版构建失败，尝试原版构建（可能需要更多依赖）..."
+            COMPOSE_FILE="docker-compose.yml"
+
+            if try_build "$COMPOSE_FILE" "原版配置"; then
+                BUILD_SUCCESS=true
+            else
+                echo ""
+                echo "❌ 所有构建尝试都失败了"
+                echo ""
+                echo "🔥 常见问题解决方案："
+                echo "   1. Docker 网络问题: sudo systemctl restart docker (Linux)"
+                echo "   2. 清理 Docker: docker system prune -a"
+                echo "   3. 检查磁盘空间: df -h"
+                echo "   4. 增加 Docker 内存（Windows/Mac Docker Desktop 设置）"
+                echo "   5. 关闭 VPN 或代理"
+                echo ""
+                echo "📋 手动构建命令（尝试Debian Bullseye）:"
+                echo "   cd $SCRIPT_DIR"
+                echo "   docker build -f Dockerfile.debian-bullseye -t optikg .."
+                echo "   docker run -e DISPLAY=\$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix optikg"
+                echo ""
+                exit 1
+            fi
+        fi
     fi
 fi
 

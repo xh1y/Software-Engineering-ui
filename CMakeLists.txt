@@ -95,6 +95,13 @@ endif()
 # ==============================================================================
 # 4. 添加子模块 (tokenizers-cpp)
 # ==============================================================================
+
+# 修复：MinGW 交叉编译时，强制 Rust 使用 GNU 目标
+if(MINGW OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND WIN32)
+    message(STATUS "MinGW detected: setting Rust target to x86_64-pc-windows-gnu")
+    set(TOKENIZERS_CPP_CARGO_TARGET x86_64-pc-windows-gnu CACHE STRING "Rust target" FORCE)
+endif()
+
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/tokenizers-cpp/CMakeLists.txt")
     add_subdirectory(3rdparty/tokenizers-cpp)
 else ()
