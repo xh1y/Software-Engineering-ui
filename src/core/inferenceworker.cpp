@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <cxxabi.h>
 
 namespace optikg {
 
@@ -57,6 +58,8 @@ namespace optikg {
     }
 
     void InferenceWorker::run() {
+        Q_ASSERT_X(!text_.isNull(), "InferenceWorker::run", "text_ is null");
+        
         QElapsedTimer timer;
         timer.start();
 
@@ -66,7 +69,7 @@ namespace optikg {
         try {
             // 如果文本过长，使用分块处理
             if (text_.length() > AppConstants::Model::CHUNK_THRESHOLD) {
-                results = inferWithChunking(text_, AppConstants::Model::DEFAULT_CHUNK_SIZE, AppConstants::Model::DEFAULT_OVERLAP_SIZE);
+                results = inferWithChunking(text_, AppConstants::chunkSize(), AppConstants::overlapSize());
             } else {
                 results = runOnnxInference(text_);
             }
@@ -74,7 +77,21 @@ namespace optikg {
             emit errorOccurred(tr("推理错误: %1").arg(e.what()));
             return;
         } catch (...) {
-            emit errorOccurred(tr("未知推理错误"));
+            // 尝试获取未知异常的类型信息
+            QString errorDetail;
+            try {
+                if (std::current_exception()) {
+                    // 尝试获取异常类型名称
+                    errorDetail = tr("未知异常类型(无法获取详细信息)");
+                } else {
+                    errorDetail = tr("未捕获到活跃异常");
+                }
+            } catch (...) {
+                errorDetail = tr("获取异常信息时出错");
+            }
+            
+            Logger::critical(tr("未知推理错误: %1").arg(errorDetail));
+            emit errorOccurred(tr("未知推理错误: %1").arg(errorDetail));
             return;
         }
 
@@ -96,6 +113,8 @@ namespace optikg {
     }
 
     bool InferenceWorker::loadModel() {
+        Q_ASSERT_X(!modelPath_.isEmpty(), "InferenceWorker::loadModel", "modelPath_ is empty");
+        
         if (modelPath_.isEmpty()) {
             Logger::warning("Model path is empty");
             return false;
@@ -235,6 +254,9 @@ namespace optikg {
     };
 
     QList<Triple> InferenceWorker::tokenizeAndPredict(const QString &rawInput) {
+        Q_ASSERT_X(tokenizer_ != nullptr || !modelPath_.isEmpty(), 
+                   "InferenceWorker::tokenizeAndPredict", "No tokenizer or model path available");
+        
         qDebug() << "=== Starting Final Standardized Prediction ===";
         if (!modelLoaded_ && !loadModel()) return QList<Triple>();
 
@@ -395,6 +417,12 @@ namespace optikg {
 
         QList<Triple> allResults;
 
+        // 预估总分块数（用于进度计算）
+        int effectiveChunkSize = chunkSize - overlapSize;
+        if (effectiveChunkSize <= 0) effectiveChunkSize = chunkSize;
+        int estimatedTotalChunks = (text.length() + effectiveChunkSize - 1) / effectiveChunkSize;
+        int processedChunks = 0;
+
         // 分割文本为块（尽量按句子边界分割）
         int startPos = 0;
         while (startPos < text.length()) {
@@ -423,31 +451,106 @@ namespace optikg {
             }
 
             allResults.append(chunkResults);
+            processedChunks++;
+
+            // 计算并发射进度（10% ~ 90%）
+            int totalChunks = std::max(estimatedTotalChunks, processedChunks);
+            int progress = 10 + (processedChunks * 80 / totalChunks);
+            emit progressChanged(std::min(progress, 90));
+
+            // 如果已经处理到文本末尾，退出循环
+            if (endPos >= text.length()) {
+                break;
+            }
 
             // 移动到下一个块，考虑重叠
             startPos = endPos - overlapSize;
-            if (startPos <= 0) {
-                startPos = endPos; // 防止无限循环
+            if (startPos <= 0 || startPos >= endPos) {
+                startPos = endPos; // 防止无限循环或回退
             }
 
             // 进度信息（可以发射信号，但这是私有方法）
             qDebug() << "Progress:" << startPos << "/" << text.length();
         }
 
-        // 简单去重（基于实体名称和关系）
+        // 智能去重（基于实体名称规范化、关系语义和置信度）
         QList<Triple> deduplicated;
-        QSet<QString> seen;
-
+        
+        // 辅助函数：规范化实体名称用于比较
+        auto normalizeEntity = [](const QString& name) -> QString {
+            QString normalized = name.toLower().trimmed();
+            // 移除常见的多余空格和标点
+            normalized = normalized.replace(QRegularExpression("\\s+"), " ");
+            normalized = normalized.replace(QRegularExpression("^[\\s.。,，!！?？]+"), "");
+            normalized = normalized.replace(QRegularExpression("[\\s.。,，!！?？]+$"), "");
+            return normalized;
+        };
+        
+        // 辅助函数：计算字符串相似度（简单的编辑距离比率）
+        auto calculateSimilarity = [](const QString& s1, const QString& s2) -> qreal {
+            if (s1 == s2) return 1.0;
+            if (s1.isEmpty() || s2.isEmpty()) return 0.0;
+            
+            // 使用最长公共子序列的简化版本
+            int maxLen = qMax(s1.length(), s2.length());
+            int commonChars = 0;
+            for (const QChar& c : s1) {
+                if (s2.contains(c)) {
+                    commonChars++;
+                }
+            }
+            return static_cast<qreal>(commonChars) / maxLen;
+        };
+        
+        // 使用多维度键来去重
+        QMap<QString, Triple> uniqueTriples;  // 键 -> 最佳三元组
+        const qreal SIMILARITY_THRESHOLD = 0.85;  // 相似度阈值
+        
         for (const auto& triple : allResults) {
-            QString key = triple.subject.name + "|" + triple.relation + "|" + triple.object.name;
-            if (!seen.contains(key)) {
-                seen.insert(key);
-                deduplicated.append(triple);
+            QString normSubject = normalizeEntity(triple.subject.name);
+            QString normObject = normalizeEntity(triple.object.name);
+            QString normRelation = triple.relation.trimmed().toLower();
+            
+            // 创建规范化键
+            QString normKey = normSubject + "|" + normRelation + "|" + normObject;
+            
+            bool foundDuplicate = false;
+            // 检查是否已存在相似的三元组
+            for (auto it = uniqueTriples.begin(); it != uniqueTriples.end(); ++it) {
+                const Triple& existing = it.value();
+                QString existingNormSub = normalizeEntity(existing.subject.name);
+                QString existingNormObj = normalizeEntity(existing.object.name);
+                QString existingNormRel = existing.relation.trimmed().toLower();
+                
+                // 计算相似度
+                qreal subSim = calculateSimilarity(normSubject, existingNormSub);
+                qreal objSim = calculateSimilarity(normObject, existingNormObj);
+                qreal relSim = (normRelation == existingNormRel) ? 1.0 : 0.0;
+                
+                // 如果实体和关系都足够相似，认为是重复
+                if (subSim >= SIMILARITY_THRESHOLD && objSim >= SIMILARITY_THRESHOLD && relSim > 0) {
+                    foundDuplicate = true;
+                    // 保留置信度更高的
+                    if (triple.confidence > existing.confidence) {
+                        uniqueTriples[it.key()] = triple;
+                        Logger::debug(QString("Replaced duplicate triple with higher confidence: %1 -> %2 -> %3")
+                                     .arg(triple.subject.name).arg(triple.relation).arg(triple.object.name));
+                    }
+                    break;
+                }
+            }
+            
+            if (!foundDuplicate) {
+                uniqueTriples.insert(normKey, triple);
             }
         }
+        
+        deduplicated = uniqueTriples.values();
 
-        qDebug() << "Long text processing complete. Found" << deduplicated.size()
-                 << "unique triples (before dedup:" << allResults.size() << ")";
+        Logger::info(QString("Long text processing complete. Found %1 unique triples (before dedup: %2, removed: %3)")
+                    .arg(deduplicated.size())
+                    .arg(allResults.size())
+                    .arg(allResults.size() - deduplicated.size()));
 
         return deduplicated;
     }

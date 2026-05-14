@@ -2,9 +2,5 @@
 <RCC version="1.0">
     <qresource prefix="/">
         <file>styles/modern_pro.qss</file>
-        <file>styles/modern_dark_pro.qss</file>
-        <file>styles/warm_beige.qss</file>
-        <file>styles/material_light.qss</file>
-        <file>styles/material_dark.qss</file>
     </qresource>
 </RCC>

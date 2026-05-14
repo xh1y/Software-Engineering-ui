@@ -36,7 +36,7 @@ private:
     QString text_;
     QString modelPath_;
     float threshold_ = -10.0f;
-    bool stopRequested_ = false;
+    std::atomic<bool> stopRequested_{false};
 
     // ONNX Runtime components
     Ort::Env env_{nullptr};

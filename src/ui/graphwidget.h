@@ -75,6 +75,7 @@ private:
     void showEmptyState();
     void hideEmptyState();
     qreal calculateOptimalRadius(int nodeCount);
+    void clearGraphData();  ///< 清理节点和边数据对象
 
 private:
     QGraphicsScene* scene_;

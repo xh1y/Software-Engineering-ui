@@ -68,17 +68,17 @@ QComboBox::drop-down:hover {
 /* 下拉箭头 - 使用 CSS 绘制 */
 QComboBox::down-arrow {
     image: none;
-    width: 8px;
-    height: 8px;
-    border-left: 2px solid #909399;
-    border-bottom: 2px solid #909399;
-    transform: rotate(-45deg);
-    margin-top: -2px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #909399;
+    /* transform 不被 Qt QSS 支持，改用三角形箭头 */
 }
 
 QComboBox::down-arrow:hover {
-    border-left-color: #409EFF;
-    border-bottom-color: #409EFF;
+    border-top-color: #409EFF;
+    /* border-left-color 和 border-bottom-color 已移除 */
 }
 
 /* 下拉列表弹窗 */
@@ -91,7 +91,7 @@ QComboBox QAbstractItemView {
     selection-color: #409EFF;
     outline: none;
     margin-top: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* box-shadow 不被 Qt QSS 支持，已移除 */
 }
 
 QComboBox QAbstractItemView::item {
@@ -148,22 +148,12 @@ QDateEdit::drop-down:hover {
 /* 日历图标 */
 QDateEdit::down-arrow {
     image: none;
-    width: 14px;
-    height: 14px;
-    border: 1.5px solid #909399;
-    border-radius: 2px;
-    position: relative;
-}
-
-QDateEdit::down-arrow::before {
-    content: "";
-    position: absolute;
-    top: -4px;
-    left: 2px;
-    width: 6px;
-    height: 3px;
-    background-color: #909399;
-    border-radius: 1px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #909399;
+    /* content 和伪元素不被 Qt QSS 支持，改用三角形箭头 */
 }
 
 /* 日历弹窗 */

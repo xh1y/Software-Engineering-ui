@@ -12,6 +12,16 @@
 namespace optikg {
 
 /**
+ * @brief 元数据加载结果枚举
+ */
+enum class MetadataLoadResult {
+    Success,                ///< 加载成功
+    FileNotFound,          ///< 文件不存在
+    InvalidJson,           ///< JSON格式无效
+    MissingRequiredFields  ///< 缺少必需字段
+};
+
+/**
  * @brief 推理引擎 - 同步执行知识抽取
  * 
  * 独立于 QThread 的推理引擎，可被 BatchProcessor 和 InferenceWorker 复用
@@ -63,7 +73,7 @@ public:
 
 private:
     bool loadTokenizer(const QString& path);
-    bool loadMetadata(const QString& metadataPath);
+    MetadataLoadResult loadMetadata(const QString& metadataPath);
     QList<Triple> runInference(const QString& text);
     void cleanup();
 

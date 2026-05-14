@@ -64,10 +64,23 @@ echo 🔨 开始构建 Docker 镜像（首次运行较慢，约5-10分钟）...
 echo    如果中途失败，会自动尝试简化版构建
 echo.
 
-REM 首先尝试Debian Bullseye构建（最稳定）
-set COMPOSE_FILE=docker-compose.debian-bullseye.yml
+REM 首先尝试修复的简化版构建（Ubuntu 22.04 正确包名）
+set COMPOSE_FILE=docker-compose.simple.yml
 echo.
-echo 🔄 尝试使用Debian Bullseye构建...
+echo 🔄 尝试使用修复的简化版构建...
+echo    使用的配置文件: %COMPOSE_FILE%
+echo.
+
+%COMPOSE_CMD% -f %COMPOSE_FILE% build --progress plain
+if %errorlevel% equ 0 (
+    echo ✅ 修复的简化版构建成功！
+    goto :build_success
+)
+
+REM 简化版失败，尝试Debian Bullseye
+echo.
+echo ⚠️  简化版构建失败，尝试Debian Bullseye构建...
+set COMPOSE_FILE=docker-compose.debian-bullseye.yml
 echo    使用的配置文件: %COMPOSE_FILE%
 echo.
 
@@ -90,22 +103,9 @@ if %errorlevel% equ 0 (
     goto :build_success
 )
 
-REM Qt官方镜像失败，尝试简化版
+REM Qt官方镜像失败，尝试原版
 echo.
-echo ⚠️  Qt官方镜像构建失败，尝试简化版构建...
-set COMPOSE_FILE=docker-compose.simple.yml
-echo    使用的配置文件: %COMPOSE_FILE%
-echo.
-
-%COMPOSE_CMD% -f %COMPOSE_FILE% build --progress plain
-if %errorlevel% equ 0 (
-    echo ✅ 简化版构建成功！
-    goto :build_success
-)
-
-REM 简化版失败，尝试原版
-echo.
-echo ⚠️  简化版构建失败，尝试原版构建...
+echo ⚠️  Qt官方镜像构建失败，尝试原版构建...
 set COMPOSE_FILE=docker-compose.yml
 echo    使用的配置文件: %COMPOSE_FILE%
 echo.
@@ -138,9 +138,9 @@ echo    3. 检查磁盘空间
 echo    4. 在 Docker Desktop 设置中增加内存（至少 4GB）
 echo    5. 关闭 VPN 或代理
 echo.
-echo 📋 手动构建命令（尝试Debian Bullseye）:
+echo 📋 手动构建命令（尝试修复的简化版）:
 echo    cd %CD%
-echo    docker build -f Dockerfile.debian-bullseye -t optikg ..
+echo    docker build -f Dockerfile.simple -t optikg ..
 echo    docker run -e DISPLAY=host.docker.internal:0 -v /tmp/.X11-unix:/tmp/.X11-unix optikg
 echo.
 pause

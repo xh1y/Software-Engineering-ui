@@ -48,6 +48,7 @@ private slots:
     void onExportCsvClicked();
     void onSettingsClicked();
     void onOpenClicked();
+    void onOpenTextFileClicked();
     void onAboutClicked();
     void onHelpClicked();
 

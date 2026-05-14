@@ -8,7 +8,20 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
+#include <QThread>
+#include <QCoreApplication>
 #include "../utils/logger.h"
+
+namespace {
+    // 检查是否在主线程，如果不是则记录错误并返回 false
+    bool checkMainThread(const QString& operationName) {
+        if (QThread::currentThread() != QCoreApplication::instance()->thread()) {
+            optikg::Logger::critical(QString("致命错误：试图在非主线程访问数据库！操作: %1").arg(operationName));
+            return false;
+        }
+        return true;
+    }
+}
 
 namespace optikg {
 
@@ -27,6 +40,13 @@ DatabaseManager& DatabaseManager::instance() {
 }
 
 bool DatabaseManager::initialize(const QString& databasePath) {
+    if (!checkMainThread("initialize")) {
+        return false;
+    }
+    
+    Q_ASSERT_X(QSqlDatabase::isDriverAvailable("QSQLITE"), 
+               "DatabaseManager::initialize", "SQLite driver not available");
+    
     if (db_.isOpen()) {
         db_.close();
     }
@@ -169,6 +189,12 @@ bool DatabaseManager::createRelationsTable() {
 }
 
 qint64 DatabaseManager::insertExtractionRecord(const ExtractionRecord& record) {
+    if (!checkMainThread("insertExtractionRecord")) {
+        return -1;
+    }
+    
+    Q_ASSERT_X(db_.isOpen(), "DatabaseManager::insertExtractionRecord", "Database is not open");
+    
     if (!db_.isOpen()) {
         Logger::warning("Database not open");
         return -1;
@@ -278,6 +304,10 @@ void DatabaseManager::saveTriples(qint64 recordId, const QList<Triple>& triples)
 // TODO: 实现其他方法：updateExtractionRecord, deleteExtractionRecord, getAllExtractionRecords等
 
 bool DatabaseManager::deleteExtractionRecord(qint64 id) {
+    if (!checkMainThread("deleteExtractionRecord")) {
+        return false;
+    }
+    
     QSqlQuery query(db_);
     query.prepare("DELETE FROM extraction_records WHERE id = ?");
     query.addBindValue(id);
@@ -292,6 +322,10 @@ bool DatabaseManager::deleteExtractionRecord(qint64 id) {
 }
 
 QList<ExtractionRecord> DatabaseManager::getAllExtractionRecords(int limit) {
+    if (!checkMainThread("getAllExtractionRecords")) {
+        return QList<ExtractionRecord>();
+    }
+    
     QList<ExtractionRecord> records;
 
     QSqlQuery query(db_);
@@ -330,10 +364,15 @@ QList<ExtractionRecord> DatabaseManager::getAllExtractionRecords(int limit) {
 // 其他方法暂时留空实现
 bool DatabaseManager::updateExtractionRecord(const ExtractionRecord& record) {
     Q_UNUSED(record);
+    checkMainThread("updateExtractionRecord");
     return false;
 }
 
 bool DatabaseManager::deleteMultipleRecords(const QList<qint64>& ids) {
+    if (!checkMainThread("deleteMultipleRecords")) {
+        return false;
+    }
+    
     if (ids.isEmpty()) return true;
 
     QString idList = QStringList(QStringList() << "?").join(",");
@@ -354,6 +393,10 @@ bool DatabaseManager::deleteMultipleRecords(const QList<qint64>& ids) {
 }
 
 ExtractionRecord DatabaseManager::getExtractionRecord(qint64 id) {
+    if (!checkMainThread("getExtractionRecord")) {
+        return ExtractionRecord();
+    }
+    
     ExtractionRecord record;
 
     QSqlQuery query(db_);
@@ -383,7 +426,12 @@ ExtractionRecord DatabaseManager::getExtractionRecord(qint64 id) {
 QList<ExtractionRecord> DatabaseManager::searchExtractionRecords(const QString& keyword,
                                                                  const QDateTime& startTime,
                                                                  const QDateTime& endTime,
+                                                                 int entityType,
                                                                  int limit) {
+    if (!checkMainThread("searchExtractionRecords")) {
+        return QList<ExtractionRecord>();
+    }
+    
     QList<ExtractionRecord> records;
 
     QString sql = R"(
@@ -407,6 +455,12 @@ QList<ExtractionRecord> DatabaseManager::searchExtractionRecords(const QString& 
     if (endTime.isValid()) {
         sql += " AND created_at <= ?";
         bindValues.append(endTime);
+    }
+
+    // 实体类型筛选：只返回包含该类型实体的记录
+    if (entityType >= 0) {
+        sql += " AND EXISTS (SELECT 1 FROM entities WHERE entities.record_id = extraction_records.id AND entities.type = ?)";
+        bindValues.append(entityType);
     }
 
     sql += " ORDER BY created_at DESC LIMIT ?";
@@ -444,6 +498,10 @@ QList<ExtractionRecord> DatabaseManager::searchExtractionRecords(const QString& 
 }
 
 int DatabaseManager::getRecordCount() {
+    if (!checkMainThread("getRecordCount")) {
+        return 0;
+    }
+    
     QSqlQuery query(db_);
     if (query.exec("SELECT COUNT(*) FROM extraction_records") && query.next()) {
         return query.value(0).toInt();
@@ -452,6 +510,10 @@ int DatabaseManager::getRecordCount() {
 }
 
 int DatabaseManager::getEntityCount() {
+    if (!checkMainThread("getEntityCount")) {
+        return 0;
+    }
+    
     QSqlQuery query(db_);
     if (query.exec("SELECT COUNT(*) FROM entities") && query.next()) {
         return query.value(0).toInt();
@@ -460,6 +522,10 @@ int DatabaseManager::getEntityCount() {
 }
 
 int DatabaseManager::getRelationCount() {
+    if (!checkMainThread("getRelationCount")) {
+        return 0;
+    }
+    
     QSqlQuery query(db_);
     if (query.exec("SELECT COUNT(*) FROM relations") && query.next()) {
         return query.value(0).toInt();
@@ -468,6 +534,10 @@ int DatabaseManager::getRelationCount() {
 }
 
 float DatabaseManager::getAverageConfidence() {
+    if (!checkMainThread("getAverageConfidence")) {
+        return 0.0f;
+    }
+    
     QSqlQuery query(db_);
     if (query.exec("SELECT AVG(avg_confidence) FROM extraction_records") && query.next()) {
         return query.value(0).toFloat();
@@ -476,6 +546,8 @@ float DatabaseManager::getAverageConfidence() {
 }
 
 QList<Triple> DatabaseManager::loadTriples(qint64 recordId) {
+    Q_ASSERT_X(recordId > 0, "DatabaseManager::loadTriples", "Invalid recordId");
+    
     QList<Triple> triples;
 
     if (!db_.isOpen()) {
@@ -552,6 +624,111 @@ bool DatabaseManager::exportToCsv(const QString& filePath, const QList<qint64>& 
     return false;
 }
 
+// 错误分类辅助函数
+DatabaseErrorType DatabaseManager::classifyDatabaseError(const QString& errorMessage) {
+    QString lowerMsg = errorMessage.toLower();
+    
+    if (lowerMsg.contains("connection") || lowerMsg.contains("unable to open") || 
+        lowerMsg.contains("network") || lowerMsg.contains("closed")) {
+        return DatabaseErrorType::ConnectionError;
+    }
+    if (lowerMsg.contains("constraint") || lowerMsg.contains("unique") || 
+        lowerMsg.contains("foreign key") || lowerMsg.contains("primary key")) {
+        return DatabaseErrorType::ConstraintError;
+    }
+    if (lowerMsg.contains("timeout") || lowerMsg.contains("busy") || 
+        lowerMsg.contains("locked")) {
+        return DatabaseErrorType::TimeoutError;
+    }
+    if (lowerMsg.contains("disk full") || lowerMsg.contains("no space") || 
+        lowerMsg.contains("database is full")) {
+        return DatabaseErrorType::DiskFullError;
+    }
+    if (lowerMsg.contains("permission") || lowerMsg.contains("access") || 
+        lowerMsg.contains("denied") || lowerMsg.contains("readonly")) {
+        return DatabaseErrorType::PermissionError;
+    }
+    if (lowerMsg.contains("no such table") || lowerMsg.contains("column") || 
+        lowerMsg.contains("schema")) {
+        return DatabaseErrorType::SchemaError;
+    }
+    
+    return DatabaseErrorType::Unknown;
+}
+
+// 带重试机制的操作执行
+bool DatabaseManager::executeWithRetry(const std::function<bool()>& operation, int maxRetries, 
+                                       const QString& operationName) {
+    int attempt = 0;
+    while (attempt < maxRetries) {
+        if (operation()) {
+            return true;
+        }
+        
+        attempt++;
+        if (attempt < maxRetries) {
+            // 指数退避策略
+            int delayMs = qMin(100 * (1 << attempt), 5000);  // 最大5秒
+            Logger::warning(QString("Operation '%1' failed (attempt %2/%3), retrying in %4ms...")
+                           .arg(operationName).arg(attempt).arg(maxRetries).arg(delayMs));
+            QThread::msleep(delayMs);
+        }
+    }
+    
+    Logger::error(QString("Operation '%1' failed after %2 attempts").arg(operationName).arg(maxRetries));
+    return false;
+}
+
+// 重试插入记录
+bool DatabaseManager::retryInsertExtractionRecords(const QList<ExtractionRecord>& records, int maxRetries) {
+    Logger::info(QString("Retrying batch insert (%1 records, max %2 attempts)...")
+                .arg(records.size()).arg(maxRetries));
+    
+    return executeWithRetry([this, &records]() -> bool {
+        if (!db_.transaction()) {
+            return false;
+        }
+        
+        try {
+            for (const ExtractionRecord& record : records) {
+                QSqlQuery query(db_);
+                query.prepare(R"(
+                    INSERT INTO extraction_records
+                    (content, created_at, process_time_ms, avg_confidence, entity_count, relation_count, raw_text, source_file)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                )");
+
+                query.addBindValue(record.content);
+                query.addBindValue(record.createdAt);
+                query.addBindValue(record.processTimeMs);
+                query.addBindValue(record.avgConfidence);
+                query.addBindValue(record.entityCount);
+                query.addBindValue(record.relationCount);
+                query.addBindValue(record.content);
+                query.addBindValue("");
+
+                if (!query.exec()) {
+                    throw std::runtime_error(query.lastError().text().toStdString());
+                }
+
+                qint64 recordId = query.lastInsertId().toLongLong();
+
+                if (!record.triples.isEmpty()) {
+                    saveTriples(recordId, record.triples);
+                }
+            }
+
+            db_.commit();
+            emit databaseChanged();
+            return true;
+            
+        } catch (const std::exception& e) {
+            db_.rollback();
+            throw;
+        }
+    }, maxRetries, "batchInsert");
+}
+
 bool DatabaseManager::insertExtractionRecords(const QList<ExtractionRecord>& records) {
     if (!db_.isOpen()) {
         Logger::warning("Database not open");
@@ -600,7 +777,39 @@ bool DatabaseManager::insertExtractionRecords(const QList<ExtractionRecord>& rec
         return true;
     } catch (const std::exception& e) {
         db_.rollback();
-        qCritical() << "Failed to insert extraction records:" << e.what();
+        QString errorMsg = QString::fromUtf8(e.what());
+        
+        // 分析错误类型
+        DatabaseErrorType errorType = classifyDatabaseError(errorMsg);
+        
+        switch (errorType) {
+            case DatabaseErrorType::ConnectionError:
+                Logger::critical(QString("Database connection error during batch insert: %1").arg(errorMsg));
+                // 连接错误可能需要重新初始化数据库
+                emit errorOccurred(tr("数据库连接错误，请检查数据库状态"));
+                break;
+                
+            case DatabaseErrorType::ConstraintError:
+                Logger::error(QString("Database constraint violation: %1").arg(errorMsg));
+                emit errorOccurred(tr("数据约束冲突，可能存在重复数据"));
+                break;
+                
+            case DatabaseErrorType::TimeoutError:
+                Logger::warning(QString("Database timeout, will retry: %1").arg(errorMsg));
+                // 超时错误可以尝试重试
+                return retryInsertExtractionRecords(records);
+                
+            case DatabaseErrorType::DiskFullError:
+                Logger::critical(QString("Database disk full: %1").arg(errorMsg));
+                emit errorOccurred(tr("磁盘空间不足，无法保存数据"));
+                break;
+                
+            default:
+                Logger::error(QString("Failed to insert extraction records: %1").arg(errorMsg));
+                emit errorOccurred(tr("保存数据失败: %1").arg(errorMsg));
+                break;
+        }
+        
         return false;
     }
 }

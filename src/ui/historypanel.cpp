@@ -1,6 +1,7 @@
 #include "historypanel.h"
 
 #include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>
@@ -8,9 +9,11 @@
 #include <QDateEdit>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
+#include <Qt> // for Qt::AlignCenter, Qt::NoItemFlags
 #include "../data/databasemanager.h"
 
 namespace optikg {
@@ -185,12 +188,26 @@ void HistoryPanel::refreshTable(const QList<ExtractionRecord>& records) {
         tableWidget_->setItem(i, 4, new QTableWidgetItem(QString::number(record.entityCount)));
         tableWidget_->setItem(i, 5, new QTableWidgetItem(QString::number(record.relationCount)));
     }
+
+    // 搜索无结果时，在表格中显示提示
+    if (records.isEmpty()) {
+        tableWidget_->setRowCount(1);
+        QTableWidgetItem* tipItem = new QTableWidgetItem(tr("未找到匹配的记录"));
+        tipItem->setTextAlignment(Qt::AlignCenter);
+        tipItem->setFlags(Qt::NoItemFlags); // 不可选中、不可编辑
+        tableWidget_->setItem(0, 0, tipItem);
+        tableWidget_->setSpan(0, 0, 1, tableWidget_->columnCount()); // 合并所有列
+    } else {
+        // 正常数据时清除可能的合并
+        tableWidget_->clearSpans();
+    }
 }
 
 void HistoryPanel::onSearch() {
     QString keyword = searchEdit_->text();
     QDate startDate = startDateFilter_->date();
     QDate endDate = endDateFilter_->date();
+    int entityType = entityTypeFilter_->currentData().toInt();
 
     QDateTime startTime, endTime;
     if (startDate.isValid()) {
@@ -201,7 +218,7 @@ void HistoryPanel::onSearch() {
     }
 
     QList<ExtractionRecord> records = DatabaseManager::instance().searchExtractionRecords(
-        keyword, startTime, endTime);
+        keyword, startTime, endTime, entityType);
     refreshTable(records);
 }
 

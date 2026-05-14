@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
     // 初始化日志系统
     optikg::Logger::instance().initialize();
-    optikg::Logger::installQtMessageHandler(false); // 不输出到控制台，只写入文件
+    optikg::Logger::installQtMessageHandler(true); // 不输出到控制台，只写入文件
     optikg::Logger::info("Application started.");
     qDebug("Debug message from qDebug");
 

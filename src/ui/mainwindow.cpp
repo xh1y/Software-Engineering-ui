@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "../utils/appconstants.h"
 #include "../utils/stylemanager.h"
+#include "../utils/logger.h"
 
 #include "optikg/datamodel.h"
 
@@ -147,9 +148,13 @@ void MainWindow::setupMenuBar() {
     newAction->setShortcut(QKeySequence::New);
     connect(newAction, &QAction::triggered, this, &MainWindow::onClearClicked);
 
-    QAction* openAction = fileMenu->addAction(tr("打开(&O)..."));
-    openAction->setShortcut(QKeySequence::Open);
-    connect(openAction, &QAction::triggered, this, &MainWindow::onOpenClicked);
+    QAction* openResultAction = fileMenu->addAction(tr("打开之前的结果(&O)..."));
+    openResultAction->setShortcut(QKeySequence::Open);
+    connect(openResultAction, &QAction::triggered, this, &MainWindow::onOpenClicked);
+
+    QAction* openTextAction = fileMenu->addAction(tr("打开纯文本文件开始抽取(&T)..."));
+    openTextAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
+    connect(openTextAction, &QAction::triggered, this, &MainWindow::onOpenTextFileClicked);
 
     fileMenu->addSeparator();
     QAction* saveAction = fileMenu->addAction(tr("保存(&S)"));
@@ -238,67 +243,6 @@ void MainWindow::setupMenuBar() {
                 sizes.append(100); // 默认大小
             }
             splitter->setSizes(sizes);
-        }
-    });
-
-    // 主题切换菜单
-    viewMenu->addSeparator();
-    QMenu* themeMenu = viewMenu->addMenu(tr("主题(&T)"));
-    QActionGroup* themeGroup = new QActionGroup(this);
-    themeGroup->setExclusive(true);
-    
-    QAction* modernProAction = themeMenu->addAction(tr("现代专业(&P)"));
-    modernProAction->setCheckable(true);
-    modernProAction->setChecked(true);
-    themeGroup->addAction(modernProAction);
-    connect(modernProAction, &QAction::triggered, this, [](bool checked) {
-        if (checked) {
-            qDebug() << "Switching to Modern Pro theme...";
-            StyleManager::instance().loadStyleSheetFromResource(":/styles/modern_pro.qss");
-        }
-    });
-    
-    QAction* modernDarkAction = themeMenu->addAction(tr("现代深色(&D)"));
-    modernDarkAction->setCheckable(true);
-    themeGroup->addAction(modernDarkAction);
-    connect(modernDarkAction, &QAction::triggered, this, [](bool checked) {
-        if (checked) {
-            qDebug() << "Switching to Modern Dark Pro theme...";
-            StyleManager::instance().loadStyleSheetFromResource(":/styles/modern_dark_pro.qss");
-        }
-    });
-    
-    QAction* warmBeigeAction = themeMenu->addAction(tr("温暖米色(&B)"));
-    warmBeigeAction->setCheckable(true);
-    themeGroup->addAction(warmBeigeAction);
-    connect(warmBeigeAction, &QAction::triggered, this, [](bool checked) {
-        if (checked) {
-            qDebug() << "Switching to Warm Beige theme...";
-            StyleManager::instance().loadStyleSheetFromResource(":/styles/warm_beige.qss");
-        }
-    });
-
-    // 添加分隔符
-    themeMenu->addSeparator();
-
-    // Material Design 主题
-    QAction* materialLightAction = themeMenu->addAction(tr("Material 浅色(&L)"));
-    materialLightAction->setCheckable(true);
-    themeGroup->addAction(materialLightAction);
-    connect(materialLightAction, &QAction::triggered, this, [](bool checked) {
-        if (checked) {
-            qDebug() << "Switching to Material Light theme...";
-            StyleManager::instance().loadStyleSheetFromResource(":/styles/material_light.qss");
-        }
-    });
-
-    QAction* materialDarkAction = themeMenu->addAction(tr("Material 深色(&K)"));
-    materialDarkAction->setCheckable(true);
-    themeGroup->addAction(materialDarkAction);
-    connect(materialDarkAction, &QAction::triggered, this, [](bool checked) {
-        if (checked) {
-            qDebug() << "Switching to Material Dark theme...";
-            StyleManager::instance().loadStyleSheetFromResource(":/styles/material_dark.qss");
         }
     });
 
@@ -876,49 +820,107 @@ void MainWindow::onBatchDeleteRecords(const QList<qint64>& ids) {
 }
 
 void MainWindow::onOpenClicked() {
+    Logger::info("[onOpenClicked] 打开文件对话框");
+    
     // 选择JSON文件导入
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("打开JSON文件"), "",
         tr("JSON文件 (*.json);;所有文件 (*)"));
 
     if (fileName.isEmpty()) {
+        Logger::info("[onOpenClicked] 用户取消选择文件");
         return;
     }
+    
+    Logger::info(QString("[onOpenClicked] 选择的文件: %1").arg(fileName));
 
     QFile file(fileName);
+    Logger::info(QString("[onOpenClicked] 尝试打开文件"));
     if (!file.open(QIODevice::ReadOnly)) {
-        showToast(tr("无法打开文件: %1").arg(file.errorString()), true);
+        QString errorMsg = file.errorString();
+        Logger::error(QString("[onOpenClicked] 无法打开文件: %1").arg(errorMsg));
+        showToast(tr("无法打开文件: %1").arg(errorMsg), true);
         return;
     }
-
+    
+    Logger::info(QString("[onOpenClicked] 文件打开成功，开始读取数据"));
     QByteArray data = file.readAll();
+    Logger::info(QString("[onOpenClicked] 文件大小: %1 字节").arg(data.size()));
     file.close();
 
+    Logger::info("[onOpenClicked] 开始解析JSON");
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
     if (parseError.error != QJsonParseError::NoError) {
-        showToast(tr("JSON解析错误: %1").arg(parseError.errorString()), true);
+        QString errorMsg = parseError.errorString();
+        Logger::error(QString("[onOpenClicked] JSON解析错误: %1").arg(errorMsg));
+        showToast(tr("JSON解析错误: %1").arg(errorMsg), true);
         return;
     }
+    Logger::info("[onOpenClicked] JSON解析成功");
 
     if (!doc.isObject()) {
+        Logger::error("[onOpenClicked] JSON格式错误：根元素不是对象");
         showToast(tr("JSON格式错误：根元素不是对象"), true);
         return;
     }
 
+    Logger::info("[onOpenClicked] 开始提取三元组数据");
     QJsonObject rootObj = doc.object();
-    QJsonArray triplesArray = rootObj["triples"].toArray();
+    QJsonArray triplesArray;
+
+    // 首先尝试直接获取triples字段
+    if (rootObj.contains("triples")) {
+        triplesArray = rootObj["triples"].toArray();
+        Logger::info(QString("[onOpenClicked] 从'triples'字段提取到 %1 个三元组").arg(triplesArray.size()));
+    }
+
+    // 如果是批量导出的格式 {"results": [{"triples": [...]}, ...]}
+    if (triplesArray.isEmpty() && rootObj.contains("results")) {
+        Logger::info("[onOpenClicked] 尝试从'results'字段提取");
+        QJsonArray resultsArray = rootObj["results"].toArray();
+        for (const QJsonValue& resultValue : resultsArray) {
+            if (resultValue.isObject()) {
+                QJsonObject resultObj = resultValue.toObject();
+                if (resultObj.contains("triples")) {
+                    QJsonArray resultTriples = resultObj["triples"].toArray();
+                    // 合并所有triples
+                    for (const QJsonValue& tripleValue : resultTriples) {
+                        triplesArray.append(tripleValue);
+                    }
+                }
+            }
+        }
+        Logger::info(QString("[onOpenClicked] 从'results'字段提取到 %1 个三元组").arg(triplesArray.size()));
+    }
+
     if (triplesArray.isEmpty()) {
+        Logger::warning("[onOpenClicked] 文件中没有找到三元组数据");
         showToast(tr("文件中没有找到三元组数据"), false);
         return;
     }
 
+    Logger::info(QString("[onOpenClicked] 开始解析 %1 个三元组").arg(triplesArray.size()));
     QList<optikg::Triple> importedTriples;
-    for (const QJsonValue& value : triplesArray) {
+    int parseErrorCount = 0;
+    for (int i = 0; i < triplesArray.size(); ++i) {
+        const QJsonValue& value = triplesArray[i];
         QJsonObject tripleObj = value.toObject();
+        
+        if (tripleObj.isEmpty()) {
+            Logger::warning(QString("[onOpenClicked] 第 %1 个三元组为空对象").arg(i));
+            parseErrorCount++;
+            continue;
+        }
 
         // 解析主语
         QJsonObject subjectObj = tripleObj["subject"].toObject();
+        if (subjectObj.isEmpty()) {
+            Logger::warning(QString("[onOpenClicked] 第 %1 个三元组缺少主语").arg(i));
+            parseErrorCount++;
+            continue;
+        }
+        
         optikg::Entity subject;
         subject.name = subjectObj["name"].toString();
         subject.type = Entity::stringToType(subjectObj["type"].toString());
@@ -926,6 +928,12 @@ void MainWindow::onOpenClicked() {
 
         // 解析宾语
         QJsonObject objectObj = tripleObj["object"].toObject();
+        if (objectObj.isEmpty()) {
+            Logger::warning(QString("[onOpenClicked] 第 %1 个三元组缺少宾语").arg(i));
+            parseErrorCount++;
+            continue;
+        }
+        
         optikg::Entity object;
         object.name = objectObj["name"].toString();
         object.type = Entity::stringToType(objectObj["type"].toString());
@@ -941,13 +949,19 @@ void MainWindow::onOpenClicked() {
 
         importedTriples.append(triple);
     }
+    
+    Logger::info(QString("[onOpenClicked] 成功解析 %1 个三元组，失败 %2 个").arg(importedTriples.size()).arg(parseErrorCount));
 
     // 更新当前结果
+    Logger::info("[onOpenClicked] 开始更新UI");
     currentResults_ = importedTriples;
 
     // 更新结果树
     if (resultTree_) {
+        Logger::info("[onOpenClicked] 更新结果树");
         resultTree_->setResults(importedTriples);
+    } else {
+        Logger::warning("[onOpenClicked] resultTree_ 为空");
     }
 
     // 更新知识图谱
@@ -984,14 +998,50 @@ void MainWindow::onOpenClicked() {
             }
         }
 
+        Logger::info(QString("[onOpenClicked] 设置图谱数据: %1 个节点, %2 条边").arg(nodes.size()).arg(edges.size()));
         graphWidget_->setGraphData(nodes, edges);
+    } else {
+        Logger::warning("[onOpenClicked] graphWidget_ 为空");
     }
 
     // 更新状态栏计数
-    countLabel_->setText(tr("实体: %1 关系: %2").arg(importedTriples.size() * 2).arg(importedTriples.size()));
-    statusLabel_->setText(tr("已导入 %1 个三元组").arg(importedTriples.size()));
+    if (countLabel_) {
+        countLabel_->setText(tr("实体: %1 关系: %2").arg(importedTriples.size() * 2).arg(importedTriples.size()));
+    }
+    if (statusLabel_) {
+        statusLabel_->setText(tr("已导入 %1 个三元组").arg(importedTriples.size()));
+    }
 
+    Logger::info(QString("[onOpenClicked] 成功导入 %1 个三元组").arg(importedTriples.size()));
     showToast(tr("成功导入 %1 个三元组").arg(importedTriples.size()), false);
+}
+
+void MainWindow::onOpenTextFileClicked() {
+    // 选择纯文本文件导入到输入框
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("打开纯文本文件"), "",
+        tr("文本文件 (*.txt);;所有文件 (*)"));
+
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        showToast(tr("无法打开文件: %1").arg(file.errorString()), true);
+        return;
+    }
+
+    QTextStream stream(&file);
+    stream.setEncoding(QStringConverter::Utf8);
+    QString content = stream.readAll();
+    file.close();
+
+    // 设置到抽取面板
+    if (extractionPanel_) {
+        extractionPanel_->setText(content);
+        showToast(tr("已加载文本文件，共 %1 个字符").arg(content.length()), false);
+    }
 }
 
 void MainWindow::loadRecordDetails(qint64 recordId) {
@@ -1094,7 +1144,6 @@ void MainWindow::onHelpClicked() {
         "<ul>"
         "<li><b>模型路径：</b>自动检测或手动指定模型文件</li>"
         "<li><b>置信度阈值：</b>调整实体和关系的筛选阈值</li>"
-        "<li><b>主题切换：</b>多种UI主题可选</li>"
         "</ul>"
 
         "<p><b>提示：</b>使用前请确保已正确配置模型文件路径。</p>"

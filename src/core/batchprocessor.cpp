@@ -22,6 +22,8 @@
 #include <QThread>
 #include <QThreadStorage>
 #include <QAtomicInt>
+#include <QMutex>
+#include <QMutexLocker>
 
 namespace optikg {
 
@@ -29,6 +31,18 @@ namespace optikg {
 static QThreadStorage<InferenceEngine*>& getEngineStorage() {
     static QThreadStorage<InferenceEngine*> storage;
     return storage;
+}
+
+// 全局互斥锁，防止多线程同时加载模型导致死锁
+static QMutex& getModelLoadMutex() {
+    static QMutex mutex;
+    return mutex;
+}
+
+// 全局标记，记录是否有线程成功加载模型（用于跳过重复的失败尝试）
+static QAtomicInt& getModelLoadAttempted() {
+    static QAtomicInt attempted(0); // 0=未尝试, 1=已尝试且成功, -1=已尝试且失败
+    return attempted;
 }
 
 /**
@@ -139,7 +153,9 @@ QList<FileProcessResult> BatchProcessor::getResults() const {
 void BatchProcessor::run() {
     results_.clear();
     stopRequested_ = false;
-    
+    // 重置全局模型加载状态
+    getModelLoadAttempted().storeRelaxed(0);
+
     int totalFiles = files_.size();
     int successCount = 0;
     int failCount = 0;
@@ -208,13 +224,19 @@ void BatchProcessor::run() {
         qDebug() << "Loading model from:" << modelPath_;
         emit progressChanged(0, totalRecords, tr("正在加载模型..."));
         
+        qDebug() << "[BatchProcessor] Main thread loading model from:" << modelPath_;
         if (!engine->loadModel(modelPath_)) {
             Logger::warning("Failed to load model! Will return empty results.");
+            // 标记模型加载失败，线程本地引擎将跳过加载尝试
+            qDebug() << "[BatchProcessor] Main thread model loading failed";
+            getModelLoadAttempted().storeRelaxed(-1);
         } else {
-            qDebug() << "Model loaded successfully!";
+            qDebug() << "[BatchProcessor] Main thread model loaded successfully!";
             // 设置阈值
             engine->setThreshold(threshold_);
-            qDebug() << "Engine threshold set to:" << threshold_;
+            qDebug() << "[BatchProcessor] Main thread engine threshold set to:" << threshold_;
+            // 标记模型加载成功，供线程本地引擎参考
+            getModelLoadAttempted().storeRelaxed(1);
         }
     } else {
         Logger::warning("No model path found! Please set model path in Settings.");
@@ -792,25 +814,54 @@ FileProcessResult BatchProcessor::processJsonFileWithProgress(
         // 使用线程本地存储的推理引擎（每个线程只加载一次模型）
         auto& storage = getEngineStorage();
         if (!storage.hasLocalData()) {
-            std::unique_ptr<InferenceEngine> threadEngine = std::make_unique<InferenceEngine>();
-            if (!configModelPath.isEmpty() && !threadEngine->loadModel(configModelPath)) {
-                Logger::warning("Failed to load model in thread-local engine");
+            // 检查全局加载状态，避免重复失败尝试
+            int loadStatus = getModelLoadAttempted().loadRelaxed();
+            if (loadStatus == -1) {
+                // 之前已有线程加载失败，直接返回空结果
+                Logger::warning("Model loading previously failed, skipping inference");
                 return ExtractionRecord();
             }
-            threadEngine->setThreshold(currentThreshold);
-            storage.setLocalData(threadEngine.release());
-        } else {
-            // 确保阈值设置正确
-            InferenceEngine* threadEngine = storage.localData();
-            if (threadEngine && threadEngine->isModelLoaded()) {
+
+            // 使用互斥锁防止多线程同时加载模型导致死锁
+            qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "waiting for model load mutex...";
+            QMutexLocker locker(&getModelLoadMutex());
+            qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "acquired model load mutex";
+
+            // 再次检查，防止在等待锁期间其他线程已加载
+            if (!storage.hasLocalData()) {
+                std::unique_ptr<InferenceEngine> threadEngine = std::make_unique<InferenceEngine>();
+                if (!configModelPath.isEmpty()) {
+                    qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "loading model from:" << configModelPath;
+                    bool loadSuccess = threadEngine->loadModel(configModelPath);
+                    if (!loadSuccess) {
+                        // 记录失败状态，后续线程直接跳过
+                        qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "model loading failed";
+                        getModelLoadAttempted().storeRelaxed(-1);
+                        Logger::warning("Failed to load model in thread-local engine");
+                        return ExtractionRecord();
+                    }
+                    // 记录成功状态
+                    qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "model loaded successfully";
+                    getModelLoadAttempted().storeRelaxed(1);
+                } else {
+                    // 无模型路径，记录为成功（跳过模型加载）
+                    qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "no model path specified, skipping model load";
+                    getModelLoadAttempted().storeRelaxed(1);
+                }
                 threadEngine->setThreshold(currentThreshold);
+                storage.setLocalData(threadEngine.release());
             }
+            // 锁自动释放
         }
 
+        // 获取线程本地引擎并检查
         InferenceEngine* threadEngine = storage.localData();
         if (!threadEngine || !threadEngine->isModelLoaded()) {
             return ExtractionRecord();
         }
+
+        // 确保阈值设置正确
+        threadEngine->setThreshold(currentThreshold);
 
         // 执行推理
         QList<Triple> triples = threadEngine->infer(text);
@@ -825,7 +876,7 @@ FileProcessResult BatchProcessor::processJsonFileWithProgress(
 
     // 并行处理文本（限制并发线程数防止内存过高）
     QThreadPool pool;
-    pool.setMaxThreadCount(2); // 限制为2个并发线程，减少内存占用
+    pool.setMaxThreadCount(QThread::idealThreadCount() > 2 ? 2 : 1); // 限制为1-2个并发线程，平衡性能与内存
     QList<ExtractionRecord> allRecords = QtConcurrent::blockingMapped(&pool, texts, processText);
 
     // 保存抽取记录并合并三元组
@@ -946,25 +997,54 @@ FileProcessResult BatchProcessor::processCsvFileWithProgress(
         // 使用线程本地存储的推理引擎（每个线程只加载一次模型）
         auto& storage = getEngineStorage();
         if (!storage.hasLocalData()) {
-            std::unique_ptr<InferenceEngine> threadEngine = std::make_unique<InferenceEngine>();
-            if (!configModelPath.isEmpty() && !threadEngine->loadModel(configModelPath)) {
-                Logger::warning("Failed to load model in thread-local engine");
+            // 检查全局加载状态，避免重复失败尝试
+            int loadStatus = getModelLoadAttempted().loadRelaxed();
+            if (loadStatus == -1) {
+                // 之前已有线程加载失败，直接返回空结果
+                Logger::warning("Model loading previously failed, skipping inference");
                 return ExtractionRecord();
             }
-            threadEngine->setThreshold(currentThreshold);
-            storage.setLocalData(threadEngine.release());
-        } else {
-            // 确保阈值设置正确
-            InferenceEngine* threadEngine = storage.localData();
-            if (threadEngine && threadEngine->isModelLoaded()) {
+
+            // 使用互斥锁防止多线程同时加载模型导致死锁
+            qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "waiting for model load mutex...";
+            QMutexLocker locker(&getModelLoadMutex());
+            qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "acquired model load mutex";
+
+            // 再次检查，防止在等待锁期间其他线程已加载
+            if (!storage.hasLocalData()) {
+                std::unique_ptr<InferenceEngine> threadEngine = std::make_unique<InferenceEngine>();
+                if (!configModelPath.isEmpty()) {
+                    qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "loading model from:" << configModelPath;
+                    bool loadSuccess = threadEngine->loadModel(configModelPath);
+                    if (!loadSuccess) {
+                        // 记录失败状态，后续线程直接跳过
+                        qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "model loading failed";
+                        getModelLoadAttempted().storeRelaxed(-1);
+                        Logger::warning("Failed to load model in thread-local engine");
+                        return ExtractionRecord();
+                    }
+                    // 记录成功状态
+                    qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "model loaded successfully";
+                    getModelLoadAttempted().storeRelaxed(1);
+                } else {
+                    // 无模型路径，记录为成功（跳过模型加载）
+                    qDebug() << "[BatchProcessor] Thread" << QThread::currentThread() << "no model path specified, skipping model load";
+                    getModelLoadAttempted().storeRelaxed(1);
+                }
                 threadEngine->setThreshold(currentThreshold);
+                storage.setLocalData(threadEngine.release());
             }
+            // 锁自动释放
         }
 
+        // 获取线程本地引擎并检查
         InferenceEngine* threadEngine = storage.localData();
         if (!threadEngine || !threadEngine->isModelLoaded()) {
             return ExtractionRecord();
         }
+
+        // 确保阈值设置正确
+        threadEngine->setThreshold(currentThreshold);
 
         // 执行推理
         QList<Triple> triples = threadEngine->infer(text);
@@ -979,7 +1059,7 @@ FileProcessResult BatchProcessor::processCsvFileWithProgress(
 
     // 并行处理文本（限制并发线程数防止内存过高）
     QThreadPool pool;
-    pool.setMaxThreadCount(2); // 限制为2个并发线程，减少内存占用
+    pool.setMaxThreadCount(QThread::idealThreadCount() > 2 ? 2 : 1); // 限制为1-2个并发线程，平衡性能与内存
     QList<ExtractionRecord> allRecords = QtConcurrent::blockingMapped(&pool, texts, processText);
 
     // 保存抽取记录并合并三元组

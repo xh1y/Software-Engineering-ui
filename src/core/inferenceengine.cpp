@@ -32,6 +32,8 @@ void InferenceEngine::cleanup() {
 }
 
 bool InferenceEngine::loadModel(const QString& modelPath) {
+    Q_ASSERT_X(!modelPath.isEmpty(), "InferenceEngine::loadModel", "modelPath is empty");
+    
     if (modelPath.isEmpty()) {
         Logger::warning("Model path is empty");
         return false;
@@ -86,9 +88,26 @@ bool InferenceEngine::loadModel(const QString& modelPath) {
 
         // 加载 metadata
         QString metadataPath = QDir(basePath).filePath("metadata.json");
-        if (!loadMetadata(metadataPath)) {
-            Logger::warning(QString("Failed to load metadata from: %1").arg(metadataPath));
-            // 继续，使用默认值
+        MetadataLoadResult metaResult = loadMetadata(metadataPath);
+        if (metaResult != MetadataLoadResult::Success) {
+            // 根据错误类型决定如何处理
+            switch (metaResult) {
+                case MetadataLoadResult::FileNotFound:
+                    Logger::warning(QString("Metadata file not found: %1. Using default values.").arg(metadataPath));
+                    break;
+                case MetadataLoadResult::InvalidJson:
+                    Logger::warning(QString("Metadata file contains invalid JSON: %1. Using default values.").arg(metadataPath));
+                    break;
+                case MetadataLoadResult::MissingRequiredFields:
+                    Logger::warning(QString("Metadata file missing required fields: %1. Using default values.").arg(metadataPath));
+                    break;
+                default:
+                    Logger::warning(QString("Failed to load metadata from: %1. Using default values.").arg(metadataPath));
+                    break;
+            }
+            // 记录使用的默认值
+            Logger::info(QString("Using default metadata values - max_len: %1, threshold: %2")
+                        .arg(maxSeqLength_).arg(threshold_));
         }
 
         size_t numInputNodes = session_->GetInputCount();
@@ -128,11 +147,11 @@ bool InferenceEngine::loadTokenizer(const QString& path) {
     }
 }
 
-bool InferenceEngine::loadMetadata(const QString& metadataPath) {
+MetadataLoadResult InferenceEngine::loadMetadata(const QString& metadataPath) {
     QFile file(metadataPath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         Logger::warning(QString("Cannot open metadata file: %1").arg(metadataPath));
-        return false;
+        return MetadataLoadResult::FileNotFound;
     }
 
     QByteArray jsonData = file.readAll();
@@ -141,13 +160,30 @@ bool InferenceEngine::loadMetadata(const QString& metadataPath) {
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
     if (doc.isNull()) {
         Logger::warning("Invalid JSON in metadata file");
-        return false;
+        return MetadataLoadResult::InvalidJson;
     }
 
     QJsonObject root = doc.object();
+    
+    // 检查必需的字段是否存在
+    if (!root.contains("max_len") && !root.contains("threshold")) {
+        Logger::warning("Metadata file missing required fields (max_len or threshold)");
+        // 不返回错误，使用默认值继续
+    }
+    
+    // 记录原始值，用于比较
+    int oldMaxSeqLength = maxSeqLength_;
+    float oldThreshold = threshold_;
+    
     maxSeqLength_ = root.value("max_len").toInt(128);
     threshold_ = root.value("threshold").toDouble(-10.0f);
-
+    
+    // 验证加载的值是否合理
+    if (maxSeqLength_ <= 0 || maxSeqLength_ > 2048) {
+        Logger::warning(QString("Invalid max_len value in metadata: %1, using default").arg(maxSeqLength_));
+        maxSeqLength_ = 128;
+    }
+    
     QJsonObject id2predicate = root.value("id2predicate").toObject();
     for (auto it = id2predicate.begin(); it != id2predicate.end(); ++it) {
         int id = it.key().toInt();
@@ -155,11 +191,16 @@ bool InferenceEngine::loadMetadata(const QString& metadataPath) {
         id2predicate_[id] = predicate;
     }
 
-    qDebug() << "Metadata loaded, max_len:" << maxSeqLength_ << ", threshold:" << threshold_;
-    return true;
+    Logger::info(QString("Metadata loaded - max_len: %1 (was %2), threshold: %3 (was %4), predicates: %5")
+                .arg(maxSeqLength_).arg(oldMaxSeqLength)
+                .arg(threshold_).arg(oldThreshold)
+                .arg(id2predicate_.size()));
+    return MetadataLoadResult::Success;
 }
 
 QList<Triple> InferenceEngine::infer(const QString& text) {
+    Q_ASSERT_X(!text.isNull(), "InferenceEngine::infer", "text is null");
+    
     if (!modelLoaded_) {
         Logger::warning("Model not loaded, cannot infer");
         return QList<Triple>();
@@ -179,6 +220,9 @@ struct EntitySpan {
 };
 
 QList<Triple> InferenceEngine::runInference(const QString& rawInput) {
+    Q_ASSERT_X(tokenizer_ != nullptr, "InferenceEngine::runInference", "tokenizer is null");
+    Q_ASSERT_X(session_ != nullptr, "InferenceEngine::runInference", "session is null");
+    
     qDebug() << "Running inference...";
 
     QString text = rawInput.toLower().trimmed();
@@ -189,7 +233,22 @@ QList<Triple> InferenceEngine::runInference(const QString& rawInput) {
     // 尝试解析 JSON 输入
     QJsonDocument doc = QJsonDocument::fromJson(rawInput.toUtf8());
     if (doc.isObject()) {
-        text = doc.object().value("text").toString().toLower().trimmed();
+        QJsonObject obj = doc.object();
+        // 验证 text 字段是否存在
+        if (!obj.contains("text")) {
+            Logger::warning("JSON input missing 'text' field");
+            // 尝试其他可能的字段名
+            const QStringList possibleFields = {"content", "input", "sentence", "data"};
+            for (const QString& field : possibleFields) {
+                if (obj.contains(field)) {
+                    text = obj.value(field).toString().toLower().trimmed();
+                    Logger::info(QString("Using alternative field '%1' for text input").arg(field));
+                    break;
+                }
+            }
+        } else {
+            text = obj.value("text").toString().toLower().trimmed();
+        }
     }
 
     if (text.isEmpty()) {
@@ -197,11 +256,34 @@ QList<Triple> InferenceEngine::runInference(const QString& rawInput) {
     }
 
     const int TARGET_LEN = maxSeqLength_;
+    Q_ASSERT_X(TARGET_LEN > 0 && TARGET_LEN <= 2048, "InferenceEngine::runInference", 
+               "Invalid maxSeqLength_");
 
-    // 1. 编码
+    // 1. 编码（带智能截断）
     std::vector<int32_t> encoded = tokenizer_->Encode(text.toStdString());
     if (encoded.size() > static_cast<size_t>(TARGET_LEN - 2)) {
-        encoded.resize(TARGET_LEN - 2);
+        // 记录截断前的信息
+        size_t originalSize = encoded.size();
+        Logger::warning(QString("Input text too long (%1 tokens), truncating to %2 tokens. "
+                               "Consider using inferLongText() for long inputs.")
+                       .arg(originalSize).arg(TARGET_LEN - 2));
+        
+        // 智能截断：尝试在句子边界处截断
+        size_t truncatePos = TARGET_LEN - 2;
+        // 向后查找句号、问号、感叹号等句子边界
+        for (size_t i = truncatePos; i > truncatePos / 2; --i) {
+            if (i < encoded.size()) {
+                std::vector<int32_t> tokenIds = {encoded[i]};
+                QString token = QString::fromStdString(tokenizer_->Decode(tokenIds)).trimmed();
+                // 检查是否是句子结束标记
+                if (token.contains(QRegularExpression("[。！？；.!?;]"))) {
+                    truncatePos = i + 1;  // 包含标点符号
+                    Logger::info(QString("Truncated at sentence boundary, keeping %1 tokens").arg(truncatePos));
+                    break;
+                }
+            }
+        }
+        encoded.resize(truncatePos);
     }
 
     int32_t clsId = tokenizer_->TokenToId("[CLS]");
@@ -384,30 +466,99 @@ QList<Triple> InferenceEngine::inferLongText(const QString& text, int chunkSize,
 
         allResults.append(chunkResults);
 
+        // 如果已经处理到文本末尾，退出循环
+        if (endPos >= text.length()) {
+            break;
+        }
+
         // 移动到下一个块，考虑重叠
         startPos = endPos - overlapSize;
-        if (startPos <= 0) {
-            startPos = endPos; // 防止无限循环
+        if (startPos <= 0 || startPos >= endPos) {
+            startPos = endPos; // 防止无限循环或回退
         }
 
         // 进度信息
         qDebug() << "Progress:" << startPos << "/" << text.length();
     }
 
-    // 简单去重（基于实体名称和关系）
+    // 智能去重（基于实体名称规范化、关系语义和置信度）
     QList<Triple> deduplicated;
-    QSet<QString> seen;
-
+    
+    // 辅助函数：规范化实体名称用于比较
+    auto normalizeEntity = [](const QString& name) -> QString {
+        QString normalized = name.toLower().trimmed();
+        // 移除常见的多余空格和标点
+        normalized = normalized.replace(QRegularExpression("\\s+"), " ");
+        normalized = normalized.replace(QRegularExpression("^[\\s.。,，!！?？]+"), "");
+        normalized = normalized.replace(QRegularExpression("[\\s.。,，!！?？]+$"), "");
+        return normalized;
+    };
+    
+    // 辅助函数：计算字符串相似度（简单的编辑距离比率）
+    auto calculateSimilarity = [](const QString& s1, const QString& s2) -> qreal {
+        if (s1 == s2) return 1.0;
+        if (s1.isEmpty() || s2.isEmpty()) return 0.0;
+        
+        // 使用最长公共子序列的简化版本
+        int maxLen = qMax(s1.length(), s2.length());
+        int commonChars = 0;
+        for (const QChar& c : s1) {
+            if (s2.contains(c)) {
+                commonChars++;
+            }
+        }
+        return static_cast<qreal>(commonChars) / maxLen;
+    };
+    
+    // 使用多维度键来去重
+    QMap<QString, Triple> uniqueTriples;  // 键 -> 最佳三元组
+    const qreal SIMILARITY_THRESHOLD = 0.85;  // 相似度阈值
+    
     for (const auto& triple : allResults) {
-        QString key = triple.subject.name + "|" + triple.relation + "|" + triple.object.name;
-        if (!seen.contains(key)) {
-            seen.insert(key);
-            deduplicated.append(triple);
+        QString normSubject = normalizeEntity(triple.subject.name);
+        QString normObject = normalizeEntity(triple.object.name);
+        QString normRelation = triple.relation.trimmed().toLower();
+        
+        // 创建规范化键
+        QString normKey = normSubject + "|" + normRelation + "|" + normObject;
+        
+        bool foundDuplicate = false;
+        // 检查是否已存在相似的三元组
+        for (auto it = uniqueTriples.begin(); it != uniqueTriples.end(); ++it) {
+            const Triple& existing = it.value();
+            QString existingNormSub = normalizeEntity(existing.subject.name);
+            QString existingNormObj = normalizeEntity(existing.object.name);
+            QString existingNormRel = existing.relation.trimmed().toLower();
+            
+            // 计算相似度
+            qreal subSim = calculateSimilarity(normSubject, existingNormSub);
+            qreal objSim = calculateSimilarity(normObject, existingNormObj);
+            qreal relSim = (normRelation == existingNormRel) ? 1.0 : 0.0;
+            
+            // 如果实体和关系都足够相似，认为是重复
+            if (subSim >= SIMILARITY_THRESHOLD && objSim >= SIMILARITY_THRESHOLD && relSim > 0) {
+                foundDuplicate = true;
+                // 保留置信度更高的
+                if (triple.confidence > existing.confidence) {
+                    uniqueTriples[it.key()] = triple;
+                    Logger::debug(QString("Replaced duplicate triple with higher confidence: %1 -> %2 -> %3")
+                                 .arg(triple.subject.name).arg(triple.relation).arg(triple.object.name));
+                }
+                break;
+            }
+        }
+        
+        if (!foundDuplicate) {
+            uniqueTriples.insert(normKey, triple);
         }
     }
+    
+    deduplicated = uniqueTriples.values();
 
-    qDebug() << "Long text processing complete. Found" << deduplicated.size()
-             << "unique triples (before dedup:" << allResults.size() << ")";
+    Logger::info(QString("Long text processing complete. Found %1 unique triples (before dedup: %2, removed: %3)")
+                .arg(deduplicated.size())
+                .arg(allResults.size())
+                .arg(allResults.size() - deduplicated.size()));
 
     return deduplicated;
 }

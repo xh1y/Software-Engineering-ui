@@ -4,6 +4,7 @@
 #include <QColor>
 #include <QMap>
 #include <QStringList>
+#include <QSettings>
 
 namespace optikg {
 
@@ -17,6 +18,29 @@ class AppConstants {
 public:
     // 禁用实例化
     AppConstants() = delete;
+    
+    /**
+     * @brief 初始化可配置参数（从配置文件加载）
+     */
+    static void initialize();
+    
+    /**
+     * @brief 保存当前配置到配置文件
+     */
+    static void saveSettings();
+    
+    /**
+     * @brief 重置所有可配置参数为默认值
+     */
+    static void resetToDefaults();
+    
+    // 可配置参数的 getter/setter
+    static int chunkSize();
+    static void setChunkSize(int size);
+    static int overlapSize();
+    static void setOverlapSize(int size);
+    static int maxChars();
+    static void setMaxChars(int max);
 
     // ============ UI 常量 ============
 
@@ -76,10 +100,16 @@ public:
     // ============ 模型处理常量 ============
 
     struct Model {
-        // 文本分块参数
-        static constexpr int CHUNK_THRESHOLD = 450;      // 字符数阈值
-        static constexpr int DEFAULT_CHUNK_SIZE = 500;   // 默认块大小
-        static constexpr int DEFAULT_OVERLAP_SIZE = 100; // 默认重叠大小
+        // 文本分块参数（现在是可配置的，使用getter访问当前值）
+        static constexpr int CHUNK_THRESHOLD = 450;           // 字符数阈值（固定）
+        static constexpr int DEFAULT_CHUNK_SIZE_DEFAULT = 500;    // 默认块大小默认值
+        static constexpr int DEFAULT_OVERLAP_SIZE_DEFAULT = 100;  // 默认重叠大小默认值
+        static constexpr int MAX_CHARS_DEFAULT = 10000;           // 最大字符数默认值
+        
+        // 运行时配置值（通过initialize()从配置文件加载）
+        static int& DEFAULT_CHUNK_SIZE();
+        static int& DEFAULT_OVERLAP_SIZE();
+        static int& MAX_CHARS();
 
         // 默认阈值
         static constexpr float DEFAULT_THRESHOLD = -10.0f;
@@ -97,6 +127,11 @@ public:
 
         // 模型搜索路径候选
         static QStringList getModelSearchPaths(const QString& appDir);
+        
+        // 验证参数有效性
+        static bool validateChunkSize(int size);
+        static bool validateOverlapSize(int size);
+        static bool validateMaxChars(int max);
     };
 
     // ============ 文件处理常量 ============

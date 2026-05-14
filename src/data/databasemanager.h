@@ -8,6 +8,19 @@
 
 namespace optikg {
 
+/**
+ * @brief 数据库错误类型枚举
+ */
+enum class DatabaseErrorType {
+    Unknown,           ///< 未知错误
+    ConnectionError,   ///< 连接错误
+    ConstraintError,   ///< 约束冲突
+    TimeoutError,      ///< 超时
+    DiskFullError,     ///< 磁盘满
+    PermissionError,   ///< 权限错误
+    SchemaError        ///< 表结构错误
+};
+
 class DatabaseManager : public QObject {
     Q_OBJECT
 
@@ -27,6 +40,7 @@ public:
     QList<ExtractionRecord> searchExtractionRecords(const QString& keyword,
                                                    const QDateTime& startTime = QDateTime(),
                                                    const QDateTime& endTime = QDateTime(),
+                                                   int entityType = -1,
                                                    int limit = 50);
 
     // 统计信息
@@ -43,6 +57,7 @@ public:
 
 signals:
     void databaseChanged();
+    void errorOccurred(const QString& message);  ///< 数据库错误信号
 
 private:
     DatabaseManager(QObject* parent = nullptr);
@@ -57,6 +72,14 @@ private:
 
     void saveTriples(qint64 recordId, const QList<Triple>& triples);
     QList<Triple> loadTriples(qint64 recordId);
+    
+    // 错误处理和重试机制
+    DatabaseErrorType classifyDatabaseError(const QString& errorMessage);
+    bool retryInsertExtractionRecords(const QList<ExtractionRecord>& records, int maxRetries = 3);
+    
+    // 带重试的查询执行
+    bool executeWithRetry(const std::function<bool()>& operation, int maxRetries = 3, 
+                         const QString& operationName = QString());
 
     QSqlDatabase db_;
     QString databasePath_;
