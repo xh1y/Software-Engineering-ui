@@ -32,8 +32,6 @@ void InferenceEngine::cleanup() {
 }
 
 bool InferenceEngine::loadModel(const QString& modelPath) {
-    Q_ASSERT_X(!modelPath.isEmpty(), "InferenceEngine::loadModel", "modelPath is empty");
-    
     if (modelPath.isEmpty()) {
         Logger::warning("Model path is empty");
         return false;
@@ -297,7 +295,7 @@ QList<Triple> InferenceEngine::runInference(const QString& rawInput) {
         inputIdsData.push_back(static_cast<int64_t>(id));
     }
     inputIdsData.push_back(static_cast<int64_t>(sepId));
-    int actualLen = static_cast<int>(inputIdsData.size());
+    int actualLen = qMin(static_cast<int>(inputIdsData.size()), TARGET_LEN);
     while (inputIdsData.size() < static_cast<size_t>(TARGET_LEN)) {
         inputIdsData.push_back(static_cast<int64_t>(padId));
     }

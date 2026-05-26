@@ -1,6 +1,7 @@
 #include <QTest>
 #include <QApplication>
-#include <QTemporaryFile>
+#include <QTemporaryDir>
+#include <QFile>
 #include "utils/stylemanager.h"
 
 using namespace optikg;
@@ -30,14 +31,20 @@ private slots:
     }
 
     void testLoadValidStyleSheet() {
-        QTemporaryFile tempFile;
-        QVERIFY(tempFile.open());
+        QTemporaryDir tempDir;
+        QVERIFY(tempDir.isValid());
+        QString filePath = tempDir.filePath("test.qss");
+        QFile file(filePath);
+        QVERIFY(file.open(QIODevice::WriteOnly));
         QString qss = "QMainWindow { background: #333; }";
-        tempFile.write(qss.toUtf8());
-        tempFile.close();
+        file.write(qss.toUtf8());
+        file.close();
 
         StyleManager& sm = StyleManager::instance();
-        QVERIFY(sm.loadStyleSheet(tempFile.fileName()));
+        QVERIFY2(sm.loadStyleSheet(filePath),
+                  qPrintable(QString("loadStyleSheet failed: %1, path: %2, exists: %3")
+                             .arg(sm.lastError(), filePath)
+                             .arg(QFile::exists(filePath) ? "yes" : "no")));
         QCOMPARE(sm.currentStyleSheet(), qss);
         QVERIFY(sm.lastError().isEmpty());
     }
@@ -55,7 +62,6 @@ private slots:
         QString qss = "QPushButton { background: blue; }";
         sm.applyStyleSheet(qss);
         QVERIFY(sm.reloadCurrentTheme());
-        // reloadCurrentTheme 会重新设置相同的 stylesheet
         QCOMPARE(qApp->styleSheet(), qss);
     }
 
@@ -66,12 +72,16 @@ private slots:
         QVERIFY(!sm.lastError().isEmpty());
 
         // 成功后应清除错误
-        QTemporaryFile tempFile;
-        QVERIFY(tempFile.open());
-        tempFile.write("QWidget {}");
-        tempFile.close();
+        QTemporaryDir tempDir;
+        QVERIFY(tempDir.isValid());
+        QString filePath = tempDir.filePath("test2.qss");
+        QFile file(filePath);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("QWidget {}");
+        file.close();
 
-        QVERIFY(sm.loadStyleSheet(tempFile.fileName()));
+        QVERIFY2(sm.loadStyleSheet(filePath),
+                  qPrintable(QString("loadStyleSheet failed: %1").arg(sm.lastError())));
         QVERIFY(sm.lastError().isEmpty());
     }
 };

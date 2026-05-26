@@ -59,9 +59,6 @@ foreach(test_source ${TEST_SOURCES})
         ${Protobuf_INCLUDE_DIRS}
         ${ONNX_INCLUDE_DIR}
     )
-    # 模型拷贝
-    add_custom_command(TARGET ${test_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${MODEL_SRC_DIR} $<TARGET_FILE_DIR:${test_name}>/models
-    )
+    # 模型由 configure-time copy 一次性拷贝，见本文件顶部
     add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
 endforeach()

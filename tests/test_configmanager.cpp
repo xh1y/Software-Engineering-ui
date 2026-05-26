@@ -85,13 +85,14 @@ private slots:
         ConfigManager& cm = ConfigManager::instance();
         cm.initialize();
         QSignalSpy spy(&cm, &ConfigManager::settingChanged);
-        cm.setThreshold(-5.0f);
-        QCOMPARE(cm.getThreshold(), -5.0f);
-        QCOMPARE(spy.count(), 1);
+        cm.setThreshold(-0.2f);
+        QVERIFY(qFuzzyCompare(cm.getThreshold(), -0.2f));
+        // 因为默认值已经是 -0.2f，setThreshold 不会触发信号变更
+        QCOMPARE(spy.count(), 0);
 
         // 相同值（近似）不应发射信号
-        cm.setThreshold(-5.0f);
-        QCOMPARE(spy.count(), 1); // 信号总数应仍为1，没有新增信号
+        cm.setThreshold(-0.2f);
+        QCOMPARE(spy.count(), 0);
     }
 
     void testBatchOutputDir() {

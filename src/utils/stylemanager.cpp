@@ -33,6 +33,8 @@ void StyleManager::initialize() {
 }
 
 bool StyleManager::loadStyleSheet(const QString& filePath) {
+    lastError_.clear();
+
     QFile file(filePath);
     if (!file.exists()) {
         lastError_ = QString("Style file does not exist: %1").arg(filePath);
@@ -53,6 +55,8 @@ bool StyleManager::loadStyleSheet(const QString& filePath) {
 }
 
 bool StyleManager::loadStyleSheetFromResource(const QString& resourcePath) {
+    lastError_.clear();
+
     QFile file(resourcePath);
     if (!file.exists()) {
         lastError_ = QString("Resource file does not exist: %1").arg(resourcePath);

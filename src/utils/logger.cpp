@@ -92,15 +92,17 @@ namespace optikg {
             return;
         }
 
+        // 先确保初始化（不在锁内调用 initialize，避免非递归 mutex 死锁）
+        if (!initialized_) {
+            initialize();
+        }
+
         QMutexLocker locker(&mutex_);
 
         if (!initialized_) {
-            // 如果未初始化，尝试自动初始化
-            if (!initialize()) {
-                // 初始化失败，回退到 qDebug
-                qDebug() << "[" << levelToString(level) << "]" << message;
-                return;
-            }
+            // 初始化失败，回退到 qDebug
+            qDebug() << "[" << levelToString(level) << "]" << message;
+            return;
         }
 
         QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");

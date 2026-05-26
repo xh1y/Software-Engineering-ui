@@ -28,7 +28,7 @@ namespace optikg {
 
     InferenceWorker::InferenceWorker(QObject *parent)
         : QThread(parent)
-          , threshold_(-10.0f)
+          , threshold_(-0.2f)
           , stopRequested_(false)
           , env_(ORT_LOGGING_LEVEL_WARNING, "OptiKG") {
     }
@@ -113,8 +113,6 @@ namespace optikg {
     }
 
     bool InferenceWorker::loadModel() {
-        Q_ASSERT_X(!modelPath_.isEmpty(), "InferenceWorker::loadModel", "modelPath_ is empty");
-        
         if (modelPath_.isEmpty()) {
             Logger::warning("Model path is empty");
             return false;
@@ -218,7 +216,7 @@ namespace optikg {
 
         QJsonObject root = doc.object();
         maxSeqLength_ = root.value("max_len").toInt(128);
-        threshold_ = root.value("threshold").toDouble(-10.0f);
+        threshold_ = root.value("threshold").toDouble(-0.2f);
 
         QJsonObject id2predicate = root.value("id2predicate").toObject();
         for (auto it = id2predicate.begin(); it != id2predicate.end(); ++it) {

@@ -112,7 +112,7 @@ public:
         static int& MAX_CHARS();
 
         // 默认阈值
-        static constexpr float DEFAULT_THRESHOLD = -10.0f;
+        static constexpr float DEFAULT_THRESHOLD = -0.2f;
 
         // 阈值范围
         static constexpr float THRESHOLD_MIN = -100.0f;

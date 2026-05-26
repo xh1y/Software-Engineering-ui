@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # --- 1. 基础依赖 ---
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui Sql Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui Sql Concurrent Test)
 find_package(Protobuf REQUIRED)
 
 # --- 2. ONNX Runtime (Docker 路径) ---
@@ -51,7 +51,13 @@ target_include_directories(qt-try PRIVATE
         ${Protobuf_INCLUDE_DIRS} ${ONNX_INCLUDE_DIR}
 )
 
-# --- 7. 模型拷贝 ---
+# --- 7. 测试 (如果在主构建中) ---
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt")
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+# --- 8. 模型拷贝 ---
 set(MODEL_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/models")
 set(DEST_DIR "${CMAKE_BINARY_DIR}/models")
 add_custom_command(TARGET qt-try POST_BUILD

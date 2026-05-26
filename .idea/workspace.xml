@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="3" type="long" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+  </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="qt-try" targetName="test_performance" />
+      <config projectName="qt-try" targetName="spm_train" />
+      <config projectName="qt-try" targetName="test_stylemanager" />
+      <config projectName="qt-try" targetName="spm_export_vocab" />
+      <config projectName="qt-try" targetName="spm_decode" />
+      <config projectName="qt-try" targetName="test_graphwidget" />
+      <config projectName="qt-try" targetName="test_resulttreewidget" />
+      <config projectName="qt-try" targetName="tokenizers_c" />
+      <config projectName="qt-try" targetName="test_datamodel" />
+      <config projectName="qt-try" targetName="test_inferenceworker" />
+      <config projectName="qt-try" targetName="spm_normalize" />
+      <config projectName="qt-try" targetName="test_reliability" />
+      <config projectName="qt-try" targetName="test_inferenceengine" />
+      <config projectName="qt-try" targetName="sentencepiece-static" />
+      <config projectName="qt-try" targetName="sentencepiece_train-static" />
+      <config projectName="qt-try" targetName="test_configmanager" />
+      <config projectName="qt-try" targetName="spm_encode" />
+      <config projectName="qt-try" targetName="test_settingsdialog" />
+      <config projectName="qt-try" targetName="test_appconstants" />
+      <config projectName="qt-try" targetName="test_batchprocessdialog" />
+      <config projectName="qt-try" targetName="test_batchprocessor" />
+      <config projectName="qt-try" targetName="qt-try" />
+      <config projectName="qt-try" targetName="test_mainwindow" />
+      <config projectName="qt-try" targetName="tokenizers_cpp" />
+      <config projectName="qt-try" targetName="test_databasemanager" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="debug - debug" ENABLED="false" FROM_PRESET="true" GENERATION_DIR="$PROJECT_DIR$/cmake-build-debug" />
+      <configuration PROFILE_NAME="release - release" ENABLED="false" FROM_PRESET="true" GENERATION_DIR="$PROJECT_DIR$/cmake-build-release" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3b7318db-51b1-4577-a33f-0cadd3217669" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/batchprocessor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/batchprocessor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/inferenceengine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/inferenceengine.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/inferenceworker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/inferenceworker.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/data/databasemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/databasemanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/appconstants.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/appconstants.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/logger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/logger.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/stylemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/stylemanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tests/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_batchprocessdialog.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_batchprocessdialog.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_batchprocessor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_batchprocessor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_configmanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_configmanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_inferenceworker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_inferenceworker.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_mainwindow.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_mainwindow.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_reliability.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_reliability.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_stylemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_stylemanager.cpp" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="3028" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Dockerfile" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file:///usr/include/c++/15.2.1/bits/ios_base.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///usr/include/c++/15.2.1/bits/stl_vector.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///usr/include/c++/15.2.1/type_traits" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///usr/include/qt6/QtCore/qobject.h" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="xZed1PtU" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2026" />
+    <option name="minorVersion" value="1" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3BeYaU1UKorBffpPih5iuPNVQjC" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;CMake Application.qt-try.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.qt_try.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Debug.qt-try.executor&quot;: &quot;Debug&quot;,
+    &quot;CTest Application.All CTest.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;/home/arch/.local/share/JetBrains/CLion2026.1/Shell Script/shellcheck&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;ctest.advertisement.all.test.configuration.is.created&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;jsx.switch.disabled&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/fed/Documents/clion-workspace/qt-try/tests&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/fed/.local/share/JetBrains/Toolbox/apps/clion/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/tests" />
+      <recent name="$PROJECT_DIR$/docs" />
+      <recent name="$PROJECT_DIR$/test" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/models" />
+    </key>
+  </component>
+  <component name="RunManager" selected="CMake Application.qt-try">
+    <configuration name="qt-try" type="CMakeListConfigurationType" factoryName="CMakeListConfigurationFactory" temporary="true">
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="doxygen" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="doxygen" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="qt-try" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_PATH="$PROJECT_DIR$/cmake-build-debug/qt-try" EXPLICIT_BUILD_TARGET_NAME="all">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="qt-try" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_PATH="$PROJECT_DIR$/cmake-build-debug/qt-try" EXPLICIT_BUILD_TARGET_NAME="all">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sentencepiece-static" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="sentencepiece-static" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sentencepiece-static" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="sentencepiece-static" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sentencepiece_train-static" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="sentencepiece_train-static" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sentencepiece_train-static" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="sentencepiece_train-static" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_decode" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_decode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_decode">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_decode" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_decode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_decode">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_encode" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_encode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_encode">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_encode" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_encode" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_encode">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_export_vocab" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_export_vocab" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_export_vocab">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_export_vocab" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_export_vocab" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_export_vocab">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_normalize" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_normalize" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_normalize">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_normalize" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_normalize" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_normalize">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_train" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_train" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_train">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="spm_train" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="spm_train" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="spm_train">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_appconstants" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_appconstants" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_appconstants">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_batchprocessdialog" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_batchprocessdialog" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_batchprocessdialog">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_batchprocessor" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_batchprocessor" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_batchprocessor">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_configmanager" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_configmanager" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_configmanager">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_databasemanager" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_databasemanager" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_databasemanager">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_datamodel" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_datamodel" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_datamodel">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_graphwidget" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_graphwidget" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_graphwidget">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_inferenceengine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_inferenceengine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_inferenceengine">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_inferenceworker" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_inferenceworker" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_inferenceworker">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_mainwindow" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_mainwindow" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_mainwindow">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_performance" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_performance" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_performance">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_reliability" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_reliability" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_reliability">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_resulttreewidget" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_resulttreewidget" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_resulttreewidget">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_settingsdialog" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_settingsdialog" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_settingsdialog">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_stylemanager" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_stylemanager" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_stylemanager">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="tokenizers_c" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="tokenizers_c" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="tokenizers_c" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="tokenizers_c" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="tokenizers_cpp" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="tokenizers_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="tokenizers_cpp" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="tokenizers_cpp" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="All CTest" type="CTestRunConfiguration" factoryName="CTestRun" PROGRAM_PARAMS="--extra-verbose" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$CMakeCurrentLocalGenerationDir$" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_PATH="$CTestCurrentExecutableName$" EXPLICIT_BUILD_TARGET_NAME="all" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.qt-try (Debug)" />
+      <item itemvalue="CMake Application.qt-try (Release)" />
+      <item itemvalue="CMake Application.doxygen" />
+      <item itemvalue="CMake Application.qt-try" />
+      <item itemvalue="CMake Application.tokenizers_c" />
+      <item itemvalue="CMake Application.tokenizers_cpp" />
+      <item itemvalue="CMake Application.sentencepiece-static" />
+      <item itemvalue="CMake Application.sentencepiece_train-static" />
+      <item itemvalue="CMake Application.spm_decode" />
+      <item itemvalue="CMake Application.spm_encode" />
+      <item itemvalue="CMake Application.spm_export_vocab" />
+      <item itemvalue="CMake Application.spm_normalize" />
+      <item itemvalue="CMake Application.spm_train" />
+      <item itemvalue="CMake Application.test_appconstants" />
+      <item itemvalue="CMake Application.test_batchprocessdialog" />
+      <item itemvalue="CMake Application.test_batchprocessor" />
+      <item itemvalue="CMake Application.test_configmanager" />
+      <item itemvalue="CMake Application.test_databasemanager" />
+      <item itemvalue="CMake Application.test_datamodel" />
+      <item itemvalue="CMake Application.test_graphwidget" />
+      <item itemvalue="CMake Application.test_inferenceengine" />
+      <item itemvalue="CMake Application.test_inferenceworker" />
+      <item itemvalue="CMake Application.test_mainwindow" />
+      <item itemvalue="CMake Application.test_performance" />
+      <item itemvalue="CMake Application.test_reliability" />
+      <item itemvalue="CMake Application.test_resulttreewidget" />
+      <item itemvalue="CMake Application.test_settingsdialog" />
+      <item itemvalue="CMake Application.test_stylemanager" />
+      <item itemvalue="CMake Debug.qt-try" />
+      <item itemvalue="CTest Application.All CTest" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="CMake Debug.qt-try" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="/usr/bin" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3b7318db-51b1-4577-a33f-0cadd3217669" name="Changes" comment="" />
+      <created>1774851066954</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774851066954</updated>
+      <workItem from="1774851067991" duration="3427000" />
+      <workItem from="1774855986032" duration="12064000" />
+      <workItem from="1774875843099" duration="1208000" />
+      <workItem from="1774877138712" duration="293000" />
+      <workItem from="1774880257650" duration="4042000" />
+      <workItem from="1775102161410" duration="2519000" />
+      <workItem from="1775118370452" duration="4189000" />
+      <workItem from="1775125277292" duration="15161000" />
+      <workItem from="1775141325409" duration="3782000" />
+      <workItem from="1775227260547" duration="3703000" />
+      <workItem from="1775264916172" duration="27074000" />
+      <workItem from="1775308735735" duration="727000" />
+      <workItem from="1775377190750" duration="24677000" />
+      <workItem from="1775437684302" duration="10154000" />
+      <workItem from="1775449611791" duration="3093000" />
+      <workItem from="1775623792175" duration="3335000" />
+      <workItem from="1775630475836" duration="7968000" />
+      <workItem from="1775646995774" duration="7000" />
+      <workItem from="1775647155588" duration="2274000" />
+      <workItem from="1775655423714" duration="13000" />
+      <workItem from="1775966672074" duration="10065000" />
+      <workItem from="1776001979563" duration="167000" />
+      <workItem from="1776057550758" duration="929000" />
+      <workItem from="1779780462160" duration="198000" />
+      <workItem from="1779781176140" duration="1204000" />
+      <workItem from="1779784952312" duration="1607000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.tex" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticReloadCMake value="true" />
+    <isAutomaticBootstrapAfterUpdate value="false" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

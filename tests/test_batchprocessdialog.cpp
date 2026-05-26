@@ -408,15 +408,20 @@ private slots:
     void testErrorSignals() {
         BatchProcessor processor;
         QSignalSpy errorSpy(&processor, &BatchProcessor::errorOccurred);
+        QSignalSpy finishedSpy(&processor, &BatchProcessor::batchFinished);
 
         // 设置不存在的文件
         processor.setFiles({"/nonexistent/file.json"});
 
         processor.start();
         processor.wait();
+        QTest::qWait(50);
 
-        // 应收到错误信号
-        QVERIFY(errorSpy.count() > 0);
+        // 不存在的文件在扫描阶段失败 → totalRecords=0 → batchFinished with failCount
+        // errorOccurred 仅在阶段3（处理阶段）发射，不在阶段1（扫描阶段）发射
+        QVERIFY(finishedSpy.count() > 0);
+        auto args = finishedSpy.takeFirst();
+        QCOMPARE(args.at(2).toInt(), 1); // failCount = 1
     }
 
     // 测试文件处理完成信号

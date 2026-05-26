@@ -242,6 +242,14 @@ void BatchProcessor::run() {
         Logger::warning("No model path found! Please set model path in Settings.");
     }
     
+    // 模型加载失败 → 跳过阶段3，直接返回
+    if (engine && !engine->isModelLoaded()) {
+        Logger::warning("Model loading failed, skipping processing phase.");
+        results_.clear();
+        emit batchFinished(totalFiles, 0, totalFiles);
+        return;
+    }
+
     // ========== 阶段3：处理所有记录 ==========
     qDebug() << "\n[阶段3] 开始处理记录...";
     

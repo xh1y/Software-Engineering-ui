@@ -375,9 +375,12 @@ bool DatabaseManager::deleteMultipleRecords(const QList<qint64>& ids) {
     
     if (ids.isEmpty()) return true;
 
-    QString idList = QStringList(QStringList() << "?").join(",");
+    QStringList placeholders;
+    for (int i = 0; i < ids.size(); ++i) {
+        placeholders << "?";
+    }
     QSqlQuery query(db_);
-    query.prepare(QString("DELETE FROM extraction_records WHERE id IN (%1)").arg(idList));
+    query.prepare(QString("DELETE FROM extraction_records WHERE id IN (%1)").arg(placeholders.join(",")));
 
     for (qint64 id : ids) {
         query.addBindValue(id);
@@ -608,20 +611,144 @@ QList<Triple> DatabaseManager::loadTriples(qint64 recordId) {
 }
 
 bool DatabaseManager::importFromJson(const QString& filePath) {
-    Q_UNUSED(filePath);
-    return false;
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+
+    QByteArray data = file.readAll();
+    file.close();
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        return false;
+    }
+
+    if (!doc.isArray()) {
+        return false;
+    }
+
+    QJsonArray array = doc.array();
+    QList<ExtractionRecord> records;
+
+    for (const QJsonValue& val : array) {
+        QJsonObject obj = val.toObject();
+        ExtractionRecord rec;
+        rec.content = obj["content"].toString();
+        rec.processTimeMs = obj["process_time_ms"].toInt(100);
+        rec.createdAt = QDateTime::currentDateTime();
+
+        QList<Triple> triples;
+        QJsonArray triplesArray = obj["triples"].toArray();
+        for (const QJsonValue& tv : triplesArray) {
+            QJsonObject to = tv.toObject();
+            Entity subject(to["subject"].toString(),
+                          static_cast<EntityType>(to["subject_type"].toInt(0)),
+                          static_cast<float>(to["subject_confidence"].toDouble(0.9)));
+            Entity object(to["object"].toString(),
+                         static_cast<EntityType>(to["object_type"].toInt(0)),
+                         static_cast<float>(to["object_confidence"].toDouble(0.9)));
+            Triple triple(subject, object,
+                         to["relation"].toString(),
+                         static_cast<float>(to["confidence"].toDouble(0.9)));
+            triples.append(triple);
+        }
+        rec.triples = triples;
+        records.append(rec);
+    }
+
+    if (records.isEmpty()) {
+        return true;
+    }
+
+    return insertExtractionRecords(records);
 }
 
 bool DatabaseManager::exportToJson(const QString& filePath, const QList<qint64>& ids) {
-    Q_UNUSED(filePath);
-    Q_UNUSED(ids);
-    return false;
+    QList<ExtractionRecord> records;
+    if (ids.isEmpty()) {
+        records = getAllExtractionRecords();
+    } else {
+        for (qint64 id : ids) {
+            ExtractionRecord rec = getExtractionRecord(id);
+            if (rec.id > 0) {
+                records.append(rec);
+            }
+        }
+    }
+
+    QJsonArray array;
+    for (const auto& rec : records) {
+        QJsonObject obj;
+        obj["id"] = rec.id;
+        obj["content"] = rec.content;
+        obj["created_at"] = rec.createdAt.toString(Qt::ISODate);
+        obj["process_time_ms"] = rec.processTimeMs;
+        obj["avg_confidence"] = rec.avgConfidence;
+        obj["entity_count"] = rec.entityCount;
+        obj["relation_count"] = rec.relationCount;
+
+        QJsonArray triplesArray;
+        for (const auto& t : rec.triples) {
+            QJsonObject to;
+            to["subject"] = t.subject.name;
+            to["subject_type"] = static_cast<int>(t.subject.type);
+            to["subject_confidence"] = t.subject.confidence;
+            to["object"] = t.object.name;
+            to["object_type"] = static_cast<int>(t.object.type);
+            to["object_confidence"] = t.object.confidence;
+            to["relation"] = t.relation;
+            to["confidence"] = t.confidence;
+            triplesArray.append(to);
+        }
+        obj["triples"] = triplesArray;
+        array.append(obj);
+    }
+
+    QJsonDocument doc(array);
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+    file.write(doc.toJson());
+    file.close();
+    return true;
 }
 
 bool DatabaseManager::exportToCsv(const QString& filePath, const QList<qint64>& ids) {
-    Q_UNUSED(filePath);
-    Q_UNUSED(ids);
-    return false;
+    QList<ExtractionRecord> records;
+    if (ids.isEmpty()) {
+        records = getAllExtractionRecords();
+    } else {
+        for (qint64 id : ids) {
+            ExtractionRecord rec = getExtractionRecord(id);
+            if (rec.id > 0) {
+                records.append(rec);
+            }
+        }
+    }
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return false;
+    }
+    QTextStream stream(&file);
+
+    stream << "record_id,content,created_at,process_time_ms,avg_confidence,entity_count,relation_count\n";
+
+    for (const auto& rec : records) {
+        stream << rec.id << ","
+               << "\"" << QString(rec.content).replace("\"", "\"\"") << "\","
+               << rec.createdAt.toString(Qt::ISODate) << ","
+               << rec.processTimeMs << ","
+               << rec.avgConfidence << ","
+               << rec.entityCount << ","
+               << rec.relationCount << "\n";
+    }
+
+    file.close();
+    return true;
 }
 
 // 错误分类辅助函数
