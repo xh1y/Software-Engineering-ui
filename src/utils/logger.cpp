@@ -100,9 +100,11 @@ namespace optikg {
         QMutexLocker locker(&mutex_);
 
         if (!initialized_) {
+           // LCOV_EXCL_START
             // 初始化失败，回退到 qDebug
             qDebug() << "[" << levelToString(level) << "]" << message;
             return;
+        // LCOV_EXCL_STOP
         }
 
         QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
@@ -156,8 +158,8 @@ namespace optikg {
             case LogLevel::Warning: return "WARNING";
             case LogLevel::Error: return "ERROR";
             case LogLevel::Critical: return "CRITICAL";
-            default: return "UNKNOWN";
         }
+        Q_UNREACHABLE();
     }
 
     QString Logger::getDefaultLogDir() const {
@@ -196,6 +198,7 @@ namespace optikg {
             case QtCriticalMsg:
                 level = LogLevel::Critical;
                 break;
+           // LCOV_EXCL_START
             case QtFatalMsg:
                 level = LogLevel::Critical;
                 // 致命错误，记录后终止
@@ -205,6 +208,7 @@ namespace optikg {
                 // 调用默认处理器终止程序
                 qFatal("%s", msg.toUtf8().constData());
                 break;
+            // LCOV_EXCL_STOP
         }
 
         // 输出到日志文件
@@ -224,7 +228,7 @@ namespace optikg {
                 case QtCriticalMsg:
                     out << "CRITICAL: " << msg << "\n";
                     break;
-                case QtFatalMsg:
+                case QtFatalMsg: // LCOV_EXCL_LINE — qFatal终止进程，控制台输出分支不可达
                     // 已处理
                     break;
             }

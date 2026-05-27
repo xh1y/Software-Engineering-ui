@@ -19,6 +19,7 @@
   </component>
   <component name="CMakeRunConfigurationManager">
     <generated>
+      <config projectName="qt-try" targetName="test_extractionpanel" />
       <config projectName="qt-try" targetName="test_performance" />
       <config projectName="qt-try" targetName="spm_train" />
       <config projectName="qt-try" targetName="test_stylemanager" />
@@ -34,11 +35,13 @@
       <config projectName="qt-try" targetName="test_inferenceengine" />
       <config projectName="qt-try" targetName="sentencepiece-static" />
       <config projectName="qt-try" targetName="sentencepiece_train-static" />
+      <config projectName="qt-try" targetName="test_logger" />
       <config projectName="qt-try" targetName="test_configmanager" />
       <config projectName="qt-try" targetName="spm_encode" />
       <config projectName="qt-try" targetName="test_settingsdialog" />
       <config projectName="qt-try" targetName="test_appconstants" />
       <config projectName="qt-try" targetName="test_batchprocessdialog" />
+      <config projectName="qt-try" targetName="test_historypanel" />
       <config projectName="qt-try" targetName="test_batchprocessor" />
       <config projectName="qt-try" targetName="qt-try" />
       <config projectName="qt-try" targetName="test_mainwindow" />
@@ -55,22 +58,114 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3b7318db-51b1-4577-a33f-0cadd3217669" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/3rdparty/tokenizers-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/3rdparty/tokenizers-cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/3rdparty/tokenizers-cpp/rust/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/3rdparty/tokenizers-cpp/rust/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/3rdparty/tokenizers-cpp/src/huggingface_tokenizer.cc" beforeDir="false" afterPath="$PROJECT_DIR$/3rdparty/tokenizers-cpp/src/huggingface_tokenizer.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/script.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/script.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/cals.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/cals.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/coverage.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/coverage.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/run_tests.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/run_tests.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/test.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/.gitmodules" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/build.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/include/optikg/datamodel.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/qt-try_en.qm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/qt-try_en.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/qt-try_zh_CN.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/resources/icons/optikg.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/resources/optikg.desktop" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/resources/resources.qrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/resources/styles/FONTS.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/resources/styles/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/resources/styles/modern_pro.qss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/run.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/script.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/core/batchprocessor.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/core/batchprocessor.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/core/inferenceengine.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/core/inferenceengine.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/core/inferenceworker.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/core/inferenceworker.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/data/databasemanager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/data/databasemanager.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/data/datamodel.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/main.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/batchprocessdialog.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/batchprocessdialog.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/extractionpanel.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/extractionpanel.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/graphwidget.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/graphwidget.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/historypanel.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/historypanel.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/mainwindow.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/mainwindow.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/mainwindow.ui" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/resulttreewidget.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/resulttreewidget.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/settingsdialog.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/ui/settingsdialog.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/appconstants.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/appconstants.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/configmanager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/configmanager.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/logger.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/logger.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/stylemanager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/src/utils/stylemanager.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/test_file/SimpleText.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/test_file/evalA.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/test_file/evalSmall.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_appconstants.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_batchprocessdialog.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_batchprocessor.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_configmanager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_databasemanager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_datamodel.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_graphwidget.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_inferenceengine.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_inferenceworker.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_mainwindow.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_performance.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_reliability.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_resulttreewidget.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_settingsdialog.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source-code.4/source-code/tests/test_stylemanager.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/batchprocessor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/batchprocessor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/batchprocessor.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/batchprocessor.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/inferenceengine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/inferenceengine.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/inferenceengine.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/inferenceengine.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/inferenceworker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/inferenceworker.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/inferenceworker.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/inferenceworker.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/data/databasemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/databasemanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/graphwidget.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/graphwidget.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/historypanel.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/historypanel.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/historypanel.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/historypanel.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/mainwindow.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/mainwindow.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/mainwindow.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/ui/mainwindow.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/appconstants.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/appconstants.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils/appconstants.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/appconstants.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/configmanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/configmanager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils/logger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/logger.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/stylemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/stylemanager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tests/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_appconstants.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_appconstants.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_batchprocessdialog.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_batchprocessdialog.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_batchprocessor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_batchprocessor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_configmanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_configmanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_databasemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_databasemanager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_datamodel.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_datamodel.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_graphwidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_graphwidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_inferenceengine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_inferenceengine.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_inferenceworker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_inferenceworker.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_mainwindow.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_mainwindow.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_reliability.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_reliability.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_resulttreewidget.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_resulttreewidget.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_settingsdialog.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_settingsdialog.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_stylemanager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_stylemanager.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -167,14 +262,9 @@
       <recent name="$PROJECT_DIR$/models" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.qt-try">
+  <component name="RunManager" selected="CTest Application.All CTest">
     <configuration name="qt-try" type="CMakeListConfigurationType" factoryName="CMakeListConfigurationFactory" temporary="true">
       <method v="2" />
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
     </configuration>
     <configuration name="doxygen" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="doxygen" CONFIG_NAME="Debug">
       <method v="2">
@@ -291,7 +381,17 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="test_extractionpanel" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_extractionpanel" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_extractionpanel">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="test_graphwidget" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_graphwidget" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_graphwidget">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_historypanel" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_historypanel" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_historypanel">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -302,6 +402,11 @@
       </method>
     </configuration>
     <configuration name="test_inferenceworker" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_inferenceworker" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_inferenceworker">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="test_logger" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="qt-try" TARGET_NAME="test_logger" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="qt-try" RUN_TARGET_NAME="test_logger">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -382,9 +487,12 @@
       <item itemvalue="CMake Application.test_configmanager" />
       <item itemvalue="CMake Application.test_databasemanager" />
       <item itemvalue="CMake Application.test_datamodel" />
+      <item itemvalue="CMake Application.test_extractionpanel" />
       <item itemvalue="CMake Application.test_graphwidget" />
+      <item itemvalue="CMake Application.test_historypanel" />
       <item itemvalue="CMake Application.test_inferenceengine" />
       <item itemvalue="CMake Application.test_inferenceworker" />
+      <item itemvalue="CMake Application.test_logger" />
       <item itemvalue="CMake Application.test_mainwindow" />
       <item itemvalue="CMake Application.test_performance" />
       <item itemvalue="CMake Application.test_reliability" />
@@ -435,7 +543,10 @@
       <workItem from="1776057550758" duration="929000" />
       <workItem from="1779780462160" duration="198000" />
       <workItem from="1779781176140" duration="1204000" />
-      <workItem from="1779784952312" duration="1607000" />
+      <workItem from="1779784952312" duration="1993000" />
+      <workItem from="1779808728479" duration="22157000" />
+      <workItem from="1779882402967" duration="1250000" />
+      <workItem from="1779893528033" duration="61000" />
     </task>
     <servers />
   </component>

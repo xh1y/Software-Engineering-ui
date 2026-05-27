@@ -147,22 +147,6 @@ void HistoryPanel::loadHistory() {
     refreshTable(records);
 }
 
-void HistoryPanel::addRecord(const ExtractionRecord& record) {
-    // 刷新整个表格以确保数据一致
-    loadHistory();
-}
-
-void HistoryPanel::removeRecord(qint64 id) {
-    // 从数据库中删除记录，然后刷新表格
-    if (DatabaseManager::instance().deleteExtractionRecord(id)) {
-        loadHistory();
-    }
-}
-
-void HistoryPanel::clearHistory() {
-    tableWidget_->setRowCount(0);
-}
-
 QList<qint64> HistoryPanel::selectedRecordIds() const {
     QList<qint64> ids;
     QList<QTableWidgetSelectionRange> ranges = tableWidget_->selectedRanges();
@@ -220,10 +204,6 @@ void HistoryPanel::onSearch() {
     QList<ExtractionRecord> records = DatabaseManager::instance().searchExtractionRecords(
         keyword, startTime, endTime, entityType);
     refreshTable(records);
-}
-
-void HistoryPanel::onFilterChanged() {
-    // 自动搜索？暂不实现
 }
 
 void HistoryPanel::onItemClicked(int row, int column) {

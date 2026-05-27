@@ -134,6 +134,35 @@ private slots:
         QCOMPARE(edge.relation, QString("相关"));
         QCOMPARE(edge.confidence, 0.8f);
     }
+
+    void testEntityTypeToStringUnknown() {
+        // Use invalid enum value to hit the default branch
+        QString result = Entity::typeToString(static_cast<EntityType>(999));
+        QCOMPARE(result, QString("未知"));
+    }
+
+    void testEntityTypeToColorUnknown() {
+        // Use invalid enum value to hit default (Qt::gray) branch
+        Entity e("test", static_cast<EntityType>(999), 0.5f);
+        QCOMPARE(e.typeToColor(), Qt::gray);
+    }
+
+    void testTripleRelationTypeToStringUnknown() {
+        QString result = Triple::relationTypeToString(static_cast<RelationType>(999));
+        QCOMPARE(result, QString("未知"));
+    }
+
+    void testEntityInstanceTypeToString() {
+        Entity e("轴承", EntityType::Component, 0.95f);
+        QCOMPARE(e.typeToString(), QString("部件"));
+    }
+
+    void testTripleInstanceRelationTypeToString() {
+        Entity s("A", EntityType::Component, 0.9f);
+        Entity o("B", EntityType::Fault, 0.8f);
+        Triple t(s, o, "测试", 0.85f);
+        QCOMPARE(t.relationTypeToString(), QString("部件故障"));
+    }
 };
 
 QTEST_MAIN(TestDataModel)

@@ -131,6 +131,7 @@ run_coverage() {
         test_mainwindow test_batchprocessdialog test_performance \
         test_reliability test_appconstants test_stylemanager \
         test_settingsdialog test_resulttreewidget test_inferenceworker \
+        test_logger test_extractionpanel test_historypanel \
         > build.log 2>&1
     echo "  -> build done"
 
@@ -142,6 +143,7 @@ run_coverage() {
                test_appconstants test_stylemanager \
                test_graphwidget test_batchprocessor test_batchprocessdialog \
                test_mainwindow test_settingsdialog \
+               test_logger test_extractionpanel test_historypanel \
                test_performance test_reliability; do
         if [ ! -x "$bin" ]; then continue; fi
         ((cov_total++))
@@ -160,13 +162,17 @@ run_coverage() {
         gcovr -r "$PROJECT_DIR" \
               --filter "$PROJECT_DIR/src/" \
               --exclude ".*_autogen.*" \
+              --branches \
+              --exclude-unreachable-branches \
               --print-summary \
               2>&1
         echo ""
-        echo "--- Detailed: by source file ---"
+        echo "--- Detailed: by source file (line + branch) ---"
         gcovr -r "$PROJECT_DIR" \
               --filter "$PROJECT_DIR/src/" \
               --exclude ".*_autogen.*" \
+              --branches \
+              --exclude-unreachable-branches \
               2>&1 | head -60
     else
         echo "  gcovr not found. Install with: pip install gcovr"

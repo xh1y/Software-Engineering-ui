@@ -139,7 +139,6 @@ private slots:
         QCOMPARE(AppConstants::File::CSV_EXTENSION, QString(".csv"));
         QVERIFY(!AppConstants::File::getCsvEncodings().isEmpty());
         QVERIFY(AppConstants::File::getCsvEncodings().contains("UTF-8"));
-        QVERIFY(!AppConstants::File::getExportFormats().isEmpty());
     }
 
     void testMappingConstants() {
@@ -150,20 +149,8 @@ private slots:
     }
 
     void testAppInfoConstants() {
-        QCOMPARE(AppConstants::AppInfo::APP_NAME, QString("OptiKG"));
-        QCOMPARE(AppConstants::AppInfo::APP_VERSION, QString("1.0.0"));
-        QCOMPARE(AppConstants::AppInfo::ORG_NAME, QString("OptiKG"));
-    }
-
-    void testEntityTypeMap() {
-        auto typeMap = AppConstants::getEntityTypeMap();
-        QVERIFY(typeMap.contains("部件"));
-        QVERIFY(typeMap.contains("故障"));
-        QVERIFY(typeMap.contains("工具"));
-        QVERIFY(typeMap.contains("组成"));
-
-        QCOMPARE(typeMap["部件"].displayName, QString("部件"));
-        QCOMPARE(typeMap["部件"].colorHex, QString("#FF6B6B"));
+        QCOMPARE(AppConstants::AppInfo::CONFIG_ORG, QString("OptiKG"));
+        QCOMPARE(AppConstants::AppInfo::CONFIG_APP, QString("config"));
     }
 
     void testGraphConstants() {
@@ -178,13 +165,6 @@ private slots:
         QCOMPARE(AppConstants::Database::HISTORY_LIMIT, 100);
     }
 
-    void testModelSearchPaths() {
-        QStringList paths = AppConstants::Model::getModelSearchPaths("/tmp/app");
-        QVERIFY(!paths.isEmpty());
-        QVERIFY(paths.contains("/tmp/app/model/model_fp32.onnx"));
-        QVERIFY(paths.contains("/tmp/app/../model/model_fp32.onnx"));
-    }
-
     void testModelStaticRefs() {
         // DEFAULT_CHUNK_SIZE 等返回引用，应指向当前值
         AppConstants::resetToDefaults();
@@ -192,6 +172,93 @@ private slots:
         QCOMPARE(cs, 500);
         cs = 700;
         QCOMPARE(AppConstants::chunkSize(), 700);
+        AppConstants::resetToDefaults();
+    }
+
+    void testInitializeWithInvalidValues() {
+        // 写入无效值到 QSettings，然后调用 initialize 验证回退到默认值
+        QSettings settings(AppConstants::AppInfo::CONFIG_ORG, AppConstants::AppInfo::CONFIG_APP);
+        settings.setValue("model/chunkSize", 50);      // 无效：< 100
+        settings.setValue("model/overlapSize", -5);     // 无效：< 0
+        settings.setValue("model/maxChars", 50);        // 无效：< 1000
+        settings.sync();
+
+        // 注意：AppConstants 使用静态全局变量，initialize 只调用一次
+        // 我们需要直接验证 validate 函数的行为
+        QVERIFY(!AppConstants::Model::validateChunkSize(50));
+        QVERIFY(!AppConstants::Model::validateOverlapSize(-5));
+        QVERIFY(!AppConstants::Model::validateMaxChars(50));
+    }
+
+    void testChunkSizeBoundaryValues() {
+        // 边界值测试
+        QVERIFY(AppConstants::Model::validateChunkSize(100));   // min
+        QVERIFY(AppConstants::Model::validateChunkSize(5000));  // max
+        QVERIFY(!AppConstants::Model::validateChunkSize(99));   // below min
+        QVERIFY(!AppConstants::Model::validateChunkSize(5001)); // above max
+    }
+
+    void testOverlapSizeBoundaryValues() {
+        QVERIFY(AppConstants::Model::validateOverlapSize(0));     // min
+        QVERIFY(AppConstants::Model::validateOverlapSize(1000));  // max
+        QVERIFY(!AppConstants::Model::validateOverlapSize(-1));   // below min
+        QVERIFY(!AppConstants::Model::validateOverlapSize(1001)); // above max
+    }
+
+    void testMaxCharsBoundaryValues() {
+        QVERIFY(AppConstants::Model::validateMaxChars(1000));    // min
+        QVERIFY(AppConstants::Model::validateMaxChars(100000));  // max
+        QVERIFY(!AppConstants::Model::validateMaxChars(999));    // below min
+        QVERIFY(!AppConstants::Model::validateMaxChars(100001)); // above max
+    }
+
+    void testDefaultOverlapSizeTracksOverlapSize() {
+        AppConstants::resetToDefaults();
+        AppConstants::setOverlapSize(250);
+        QCOMPARE(AppConstants::overlapSize(), 250);
+        // DEFAULT_OVERLAP_SIZE() 返回 g_overlapSize 引用，应跟踪变更
+        int& ref = AppConstants::Model::DEFAULT_OVERLAP_SIZE();
+        QCOMPARE(ref, 250);
+        ref = 300;
+        QCOMPARE(AppConstants::overlapSize(), 300);
+        AppConstants::resetToDefaults();
+    }
+
+    void testMaxCharsTracksMaxChars() {
+        AppConstants::resetToDefaults();
+        AppConstants::setMaxChars(5000);
+        QCOMPARE(AppConstants::maxChars(), 5000);
+        // MAX_CHARS() 返回 g_maxChars 引用，应跟踪变更
+        int& ref = AppConstants::Model::MAX_CHARS();
+        QCOMPARE(ref, 5000);
+        ref = 6000;
+        QCOMPARE(AppConstants::maxChars(), 6000);
+        AppConstants::resetToDefaults();
+    }
+
+    void testDoubleInitialize() {
+        // initialize() should be a no-op when g_initialized is already true
+        AppConstants::resetToDefaults();
+        // Trigger initialize via a getter (this will set g_initialized = true)
+        QCOMPARE(AppConstants::chunkSize(), 500);
+        // Calling initialize() again should return immediately (covers L161-162)
+        AppConstants::initialize();
+        QCOMPARE(AppConstants::chunkSize(), 500);
+    }
+
+    void testSaveSettingsPersistsValues() {
+        AppConstants::resetToDefaults();
+        AppConstants::setChunkSize(888);
+        AppConstants::setOverlapSize(222);
+        AppConstants::setMaxChars(4444);
+        AppConstants::saveSettings();
+
+        // Verify via QSettings directly
+        QSettings settings(AppConstants::AppInfo::CONFIG_ORG, AppConstants::AppInfo::CONFIG_APP);
+        QCOMPARE(settings.value("model/chunkSize").toInt(), 888);
+        QCOMPARE(settings.value("model/overlapSize").toInt(), 222);
+        QCOMPARE(settings.value("model/maxChars").toInt(), 4444);
+
         AppConstants::resetToDefaults();
     }
 };

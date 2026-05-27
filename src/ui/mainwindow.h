@@ -42,7 +42,6 @@ private slots:
     void onExtractClicked();
     void onClearClicked();
     void onSaveClicked();
-    void onSearchClicked();
     void onBatchProcessClicked();
     void onExportJsonClicked();
     void onExportCsvClicked();
@@ -63,7 +62,6 @@ private:
     void setupMenuBar();
     void setupToolBar();
     void setupStatusBar();
-    void setupShortcuts();
     void connectSignals();
 
     void loadSettings();

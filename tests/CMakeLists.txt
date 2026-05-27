@@ -32,6 +32,9 @@ set(TEST_SOURCES
     test_settingsdialog.cpp
     test_resulttreewidget.cpp
     test_inferenceworker.cpp
+    test_logger.cpp
+    test_extractionpanel.cpp
+    test_historypanel.cpp
 )
 
 foreach(test_source ${TEST_SOURCES})

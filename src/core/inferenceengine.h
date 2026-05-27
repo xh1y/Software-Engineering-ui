@@ -17,8 +17,7 @@ namespace optikg {
 enum class MetadataLoadResult {
     Success,                ///< 加载成功
     FileNotFound,          ///< 文件不存在
-    InvalidJson,           ///< JSON格式无效
-    MissingRequiredFields  ///< 缺少必需字段
+    InvalidJson            ///< JSON格式无效
 };
 
 /**

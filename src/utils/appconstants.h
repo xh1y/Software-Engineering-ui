@@ -49,17 +49,12 @@ public:
         static constexpr int WINDOW_WIDTH = 1200;
         static constexpr int WINDOW_HEIGHT = 800;
 
-        // 设置对话框最小尺寸
-        static constexpr int SETTINGS_DIALOG_MIN_WIDTH = 500;
-        static constexpr int SETTINGS_DIALOG_MIN_HEIGHT = 400;
-
         // 批量处理对话框尺寸
         static constexpr int BATCH_DIALOG_WIDTH = 800;
         static constexpr int BATCH_DIALOG_HEIGHT = 700;
 
         // 超时时间（毫秒）
         static constexpr int TOAST_TIMEOUT_MS = 3000;
-        static constexpr int THREAD_WAIT_TIMEOUT_MS = 3000;
 
         // 状态消息颜色
         static const QString ERROR_COLOR;     // #f44336
@@ -119,15 +114,6 @@ public:
         static constexpr float THRESHOLD_MAX = 0.0f;
         static constexpr float THRESHOLD_STEP = 1.0f;
 
-        // 模型文件相关
-        static const QString MODEL_FILE_EXTENSION;       // .onnx
-        static const QString TOKENIZER_FILE_NAME;        // tokenizer.json
-        static const QString METADATA_FILE_NAME;         // metadata.json
-        static const QString VOCAB_FILE_NAME;            // vocab.txt
-
-        // 模型搜索路径候选
-        static QStringList getModelSearchPaths(const QString& appDir);
-        
         // 验证参数有效性
         static bool validateChunkSize(int size);
         static bool validateOverlapSize(int size);
@@ -140,7 +126,6 @@ public:
         // 文件扩展名
         static const QString JSON_EXTENSION;           // .json
         static const QString CSV_EXTENSION;            // .csv
-        static const QString ALL_FILES_FILTER;         // *.*
 
         // 文件过滤器
         static const QString JSON_FILE_FILTER;         // JSON文件 (*.json)
@@ -149,9 +134,6 @@ public:
 
         // CSV 编码选项
         static QStringList getCsvEncodings();
-
-        // 导出格式选项
-        static QStringList getExportFormats();
     };
 
     // ============ 字段映射默认值 ============
@@ -162,16 +144,6 @@ public:
         static constexpr const char* DEFAULT_CSV_ENCODING = "UTF-8";
         static constexpr const char* DEFAULT_EXPORT_FORMAT = "JSON";
     };
-
-    // ============ 实体类型常量 ============
-
-    struct EntityTypeInfo {
-        QString displayName;   // 显示名称
-        QColor color;          // 颜色
-        QString colorHex;      // 十六进制颜色值
-    };
-
-    static QMap<QString, EntityTypeInfo> getEntityTypeMap();
 
     // ============ 图形布局常量 ============
 
@@ -203,12 +175,6 @@ public:
     // ============ 应用程序信息 ============
 
     struct AppInfo {
-        static const QString APP_NAME;          // OptiKG
-        static const QString APP_DISPLAY_NAME;  // OptiKG - 工业知识抽取系统
-        static const QString APP_VERSION;       // 1.0.0
-        static const QString ORG_NAME;          // OptiKG
-        static const QString ORG_DOMAIN;        // optikg.org
-
         // 配置文件相关
         static const QString CONFIG_ORG;        // OptiKG
         static const QString CONFIG_APP;        // config

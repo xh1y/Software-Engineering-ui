@@ -144,24 +144,12 @@ private:
     // ========== 扫描函数（用于统计记录数）==========
     int scanJsonFile(const QString& filePath);
     int scanCsvFile(const QString& filePath);
-    
-    // ========== 处理函数（带进度跟踪）==========
-    FileProcessResult processJsonFile(const QString& filePath, InferenceEngine* engine);
-    FileProcessResult processCsvFile(const QString& filePath, InferenceEngine* engine);
-    
-    FileProcessResult processJsonFileWithProgress(const QString& filePath, InferenceEngine* engine,
-                                                   int& processedRecords, int totalRecords);
-    FileProcessResult processCsvFileWithProgress(const QString& filePath, InferenceEngine* engine,
-                                                  int& processedRecords, int totalRecords);
 
-    /**
-     * @brief 从文本内容中提取三元组
-     * @param text 输入文本
-     * @param engine 推理引擎指针（可为空，为空则创建临时引擎）
-     * @param recordIndex 当前记录索引（用于日志）
-     * @return QList<Triple> 提取的三元组
-     */
-    QList<Triple> extractFromText(const QString& text, InferenceEngine* engine, int recordIndex = -1);
+    // ========== 处理函数（带进度跟踪）==========
+    FileProcessResult processJsonFileWithProgress(const QString& filePath,
+                                                   int& processedRecords, int totalRecords);
+    FileProcessResult processCsvFileWithProgress(const QString& filePath,
+                                                  int& processedRecords, int totalRecords);
 
     QStringList files_;                 ///< 待处理的文件列表
     QString jsonContentField_;          ///< JSON 内容字段名

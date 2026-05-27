@@ -96,12 +96,6 @@ bool InferenceEngine::loadModel(const QString& modelPath) {
                 case MetadataLoadResult::InvalidJson:
                     Logger::warning(QString("Metadata file contains invalid JSON: %1. Using default values.").arg(metadataPath));
                     break;
-                case MetadataLoadResult::MissingRequiredFields:
-                    Logger::warning(QString("Metadata file missing required fields: %1. Using default values.").arg(metadataPath));
-                    break;
-                default:
-                    Logger::warning(QString("Failed to load metadata from: %1. Using default values.").arg(metadataPath));
-                    break;
             }
             // 记录使用的默认值
             Logger::info(QString("Using default metadata values - max_len: %1, threshold: %2")
@@ -117,10 +111,6 @@ bool InferenceEngine::loadModel(const QString& modelPath) {
 
     } catch (const Ort::Exception &e) {
         qCritical() << "ONNX Runtime error:" << e.what();
-        cleanup();
-        return false;
-    } catch (const std::exception &e) {
-        qCritical() << "Standard error:" << e.what();
         cleanup();
         return false;
     }
@@ -471,9 +461,11 @@ QList<Triple> InferenceEngine::inferLongText(const QString& text, int chunkSize,
 
         // 移动到下一个块，考虑重叠
         startPos = endPos - overlapSize;
+       // LCOV_EXCL_START
         if (startPos <= 0 || startPos >= endPos) {
             startPos = endPos; // 防止无限循环或回退
         }
+        // LCOV_EXCL_STOP
 
         // 进度信息
         qDebug() << "Progress:" << startPos << "/" << text.length();

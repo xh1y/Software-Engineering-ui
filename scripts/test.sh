@@ -43,6 +43,9 @@ ALL_TESTS=(
     "test_stylemanager"       # 样式管理器测试
     "test_settingsdialog"     # 设置对话框UI测试
     "test_resulttreewidget"   # 结果树控件测试
+    "test_logger"             # 日志管理器测试
+    "test_extractionpanel"    # 提取面板测试
+    "test_historypanel"       # 历史面板测试
 )
 
 # --- 需要特殊参数的测试分类 ---

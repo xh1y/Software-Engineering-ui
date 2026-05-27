@@ -1,0 +1,173 @@
+.
+├── 1.txt
+├── AppDir
+│   └── usr
+│       └── bin
+│           └── models
+│               ├── model_fp32.onnx
+│               └── model_fp32.onnx.data
+├── build.sh
+├── CMakeLists.txt
+├── CMakeLists.txt.user
+├── CMakePresets.json
+├── coverage_filtered.info
+├── coverage_html
+│   └── cmd_line
+├── coverage.info
+├── Dockerfile
+├── docs
+│   ├── 17759727702021.png
+│   ├── 17759727702162.png
+│   ├── 17759727702223.png
+│   ├── 17759727702414.png
+│   ├── 17759727702535.png
+│   ├── 17759727702586.png
+│   ├── 17759727702727.png
+│   ├── 17759727702878.png
+│   ├── 17759727703059.png
+│   ├── 177597277032710.png
+│   ├── 177597277035111.png
+│   ├── 177597277036712.png
+│   ├── 1.md
+│   ├── coverage_html
+│   │   └── cmd_line
+│   ├── docs.md
+│   ├── docs.md.backup
+│   ├── last_docs.md
+│   ├── migrate.md
+│   ├── migrate_suse.md
+│   ├── modify.md
+│   ├── need_add.docx
+│   ├── need_add.md
+│   ├── script.md
+│   ├── SE.md
+│   ├── task.md
+│   ├── total_doc.md
+│   ├── UI模块测试.md
+│   ├── useful-folders.md
+│   ├── 交作业指南.md
+│   ├── 测试覆盖率分析报告.md
+│   ├── 第1章 系统定义.md
+│   ├── 第3章 需求分析.md
+│   ├── 第3章-需求分析-mermaid.md
+│   ├── 第3章 需求分析.pdf
+│   ├── 第4章 系统设计.md
+│   ├── 第4章 系统设计.pdf
+│   ├── 第5章 编码实现.md
+│   ├── 第5章 编码实现.pdf
+│   ├── 答辩准备清单.md
+│   └── 项目演示视频讲稿.md
+├── extracted_files.txt
+├── include
+│   └── optikg
+│       └── datamodel.h
+├── models
+│   ├── metadata.json
+│   ├── model_fp32.onnx
+│   ├── model_fp32.onnx.data
+│   ├── tokenizer_config.json
+│   ├── tokenizer.json
+│   └── vocab.txt
+├── output.pdf
+├── qt-try_en.qm
+├── qt-try_en.ts
+├── qt-try_zh_CN.ts
+├── resources
+│   ├── icons
+│   │   └── optikg.png
+│   ├── optikg.desktop
+│   ├── resources.qrc
+│   └── styles
+│       ├── FONTS.md
+│       ├── modern_pro.qss
+│       └── README.md
+├── run.sh
+├── scripts
+│   ├── build-appimage.sh
+│   ├── build-image.sh
+│   ├── build.sh
+│   ├── cals.sh
+│   ├── coverage.sh
+│   ├── run.sh
+│   ├── run_tests.sh
+│   ├── script.sh
+│   └── test.sh
+├── script.sh
+├── source-code.zip
+├── src
+│   ├── core
+│   │   ├── batchprocessor.cpp
+│   │   ├── batchprocessor.h
+│   │   ├── inferenceengine.cpp
+│   │   ├── inferenceengine.h
+│   │   ├── inferenceworker.cpp
+│   │   └── inferenceworker.h
+│   ├── data
+│   │   ├── databasemanager.cpp
+│   │   ├── databasemanager.h
+│   │   └── datamodel.cpp
+│   ├── main.cpp
+│   ├── task.md
+│   ├── ui
+│   │   ├── batchprocessdialog.cpp
+│   │   ├── batchprocessdialog.h
+│   │   ├── extractionpanel.cpp
+│   │   ├── extractionpanel.h
+│   │   ├── graphwidget.cpp
+│   │   ├── graphwidget.h
+│   │   ├── historypanel.cpp
+│   │   ├── historypanel.h
+│   │   ├── mainwindow.cpp
+│   │   ├── mainwindow.h
+│   │   ├── mainwindow.ui
+│   │   ├── resulttreewidget.cpp
+│   │   ├── resulttreewidget.h
+│   │   ├── settingsdialog.cpp
+│   │   └── settingsdialog.h
+│   └── utils
+│       ├── appconstants.cpp
+│       ├── appconstants.h
+│       ├── configmanager.cpp
+│       ├── configmanager.h
+│       ├── logger.cpp
+│       ├── logger.h
+│       ├── stylemanager.cpp
+│       └── stylemanager.h
+├── task.md
+├── test
+│   ├── evalA.json
+│   ├── evalSmall.json
+│   └── SimpleText.txt
+├── test_file
+│   ├── evalA.json
+│   ├── evalSmall.json
+│   └── SimpleText.txt
+├── Testing
+│   └── Temporary
+│       ├── CTestCostData.txt
+│       └── LastTest.log
+├── tests
+│   ├── CMakeLists.txt
+│   ├── test_appconstants.cpp
+│   ├── test_batchprocessdialog.cpp
+│   ├── test_batchprocessor.cpp
+│   ├── test_configmanager.cpp
+│   ├── test_databasemanager.cpp
+│   ├── test_datamodel.cpp
+│   ├── test_extractionpanel.cpp
+│   ├── test_graphwidget.cpp
+│   ├── test_historypanel.cpp
+│   ├── test_inferenceengine.cpp
+│   ├── test_inferenceworker.cpp
+│   ├── test_logger.cpp
+│   ├── test_mainwindow.cpp
+│   ├── test_performance.cpp
+│   ├── test_reliability.cpp
+│   ├── test_resulttreewidget.cpp
+│   ├── test_settingsdialog.cpp
+│   └── test_stylemanager.cpp
+├── thumbnails-1.jpg
+├── thumbnails-2.jpg
+└── tools
+
+26 directories, 145 files

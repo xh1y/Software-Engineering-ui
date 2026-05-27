@@ -55,7 +55,6 @@ private:
     bool loadMetadata(const QString& metadataPath);
     QList<Triple> runOnnxInference(const QString& text);
     QList<Triple> tokenizeAndPredict(const QString& text);
-    QList<Triple> simulateInference(const QString& text);
     QList<Triple> inferWithChunking(const QString& text, int chunkSize = 500, int overlapSize = 100);
     void cleanup();
 };

@@ -53,10 +53,6 @@ public:
     // 供GraphNodeItem调用的方法
     void handleNodePositionChanged(const QString& nodeId, const QPointF& newPos);
 
-signals:
-    void nodeClicked(const QString& nodeId, const QString& nodeName);
-    void edgeClicked(const QString& source, const QString& target, const QString& relation);
-
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -68,7 +64,7 @@ private:
     void setupScene();
     void createNode(const GraphNode& data);
     void createEdge(const GraphEdge& data);
-    void computeForceDirectedLayout(qreal repulsionK = 100.0, qreal attractionK = 0.05, 
+    void computeForceDirectedLayout(qreal repulsionK = 100.0, qreal attractionK = 0.05,
                                      qreal damping = 0.85, int iterations = 100);
     void updateLegend();
     void updateConnectedEdges(const QString& nodeId);

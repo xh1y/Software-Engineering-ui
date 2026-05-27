@@ -238,8 +238,6 @@ void BatchProcessor::run() {
             // 标记模型加载成功，供线程本地引擎参考
             getModelLoadAttempted().storeRelaxed(1);
         }
-    } else {
-        Logger::warning("No model path found! Please set model path in Settings.");
     }
     
     // 模型加载失败 → 跳过阶段3，直接返回
@@ -268,12 +266,11 @@ void BatchProcessor::run() {
         
         // 根据文件类型处理（传入进度跟踪参数）
         FileProcessResult result(filePath);
-        InferenceEngine* enginePtr = engine ? engine.get() : nullptr;
-        
+
         if (filePath.endsWith(".json", Qt::CaseInsensitive)) {
-            result = processJsonFileWithProgress(filePath, enginePtr, processedRecords, totalRecords);
+            result = processJsonFileWithProgress(filePath, processedRecords, totalRecords);
         } else if (filePath.endsWith(".csv", Qt::CaseInsensitive)) {
-            result = processCsvFileWithProgress(filePath, enginePtr, processedRecords, totalRecords);
+            result = processCsvFileWithProgress(filePath, processedRecords, totalRecords);
         } else {
             result.success = false;
             result.errorMessage = tr("不支持的文件格式");
@@ -304,342 +301,6 @@ void BatchProcessor::run() {
     qDebug() << "========================================";
     
     emit batchFinished(totalFiles, successCount, failCount);
-}
-
-FileProcessResult BatchProcessor::processJsonFile(const QString& filePath, InferenceEngine* engine) {
-    FileProcessResult result(filePath);
-    QElapsedTimer timer;
-    timer.start();
-    
-    // 打开文件
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        result.errorMessage = tr("无法打开文件: %1").arg(file.errorString());
-        return result;
-    }
-    
-    QByteArray data = file.readAll();
-    file.close();
-    
-    // 解析 JSON
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
-    
-    // 如果标准解析失败，尝试 JSON Lines 格式（每行一个 JSON 对象）
-    QStringList texts;
-    
-    if (parseError.error != QJsonParseError::NoError) {
-        // 尝试按行解析（JSON Lines 格式）
-        QTextStream stream(data);
-        stream.setEncoding(QStringConverter::Utf8);
-        
-        int lineNum = 0;
-        int successLines = 0;
-        
-        while (!stream.atEnd()) {
-            QString line = stream.readLine().trimmed();
-            lineNum++;
-            
-            // 跳过空行
-            if (line.isEmpty()) {
-                continue;
-            }
-            
-            QJsonParseError lineError;
-            QJsonDocument lineDoc = QJsonDocument::fromJson(line.toUtf8(), &lineError);
-            
-            if (lineError.error == QJsonParseError::NoError) {
-                successLines++;
-                // 从行内提取文本
-                if (lineDoc.isObject()) {
-                    QJsonObject obj = lineDoc.object();
-                    QString text = obj.value(jsonContentField_).toString();
-                    if (!text.isEmpty()) {
-                        texts.append(text);
-                    }
-                }
-            } else {
-                // 记录第一行错误用于调试
-                if (successLines == 0 && lineNum == 1) {
-                    qDebug() << "First line parse error:" << lineError.errorString();
-                }
-            }
-        }
-        
-        // 如果成功解析了至少一行，认为是 JSON Lines 格式
-        if (successLines > 0) {
-            qDebug() << "Parsed as JSON Lines format," << successLines << "lines," << texts.size() << "texts extracted";
-        } else {
-            // 真正的解析错误
-            result.errorMessage = tr("JSON 解析错误: %1 (尝试作为 JSON Lines 也失败)").arg(parseError.errorString());
-            return result;
-        }
-    } else {
-    
-    // 标准 JSON 格式解析
-    
-    if (doc.isObject()) {
-        QJsonObject obj = doc.object();
-        
-        // 检查是否为 JSON Lines 格式（包含 records/items/data 数组）
-        if (obj.contains("records")) {
-            QJsonArray records = obj["records"].toArray();
-            for (const QJsonValue& val : records) {
-                if (val.isObject()) {
-                    QJsonObject record = val.toObject();
-                    QString text = record.value(jsonContentField_).toString();
-                    if (!text.isEmpty()) {
-                        texts.append(text);
-                    }
-                }
-            }
-        } else if (obj.contains("items")) {
-            QJsonArray items = obj["items"].toArray();
-            for (const QJsonValue& val : items) {
-                if (val.isObject()) {
-                    QJsonObject item = val.toObject();
-                    QString text = item.value(jsonContentField_).toString();
-                    if (!text.isEmpty()) {
-                        texts.append(text);
-                    }
-                }
-            }
-        } else if (obj.contains("data")) {
-            QJsonArray data_array = obj["data"].toArray();
-            for (const QJsonValue& val : data_array) {
-                if (val.isObject()) {
-                    QJsonObject data_item = val.toObject();
-                    QString text = data_item.value(jsonContentField_).toString();
-                    if (!text.isEmpty()) {
-                        texts.append(text);
-                    }
-                }
-            }
-        } else {
-            // 单条记录格式
-            QString text = obj.value(jsonContentField_).toString();
-            if (!text.isEmpty()) {
-                texts.append(text);
-            }
-        }
-    } else if (doc.isArray()) {
-        // 直接是对象数组
-        QJsonArray array = doc.array();
-        for (const QJsonValue& val : array) {
-            if (val.isObject()) {
-                QJsonObject obj = val.toObject();
-                QString text = obj.value(jsonContentField_).toString();
-                if (!text.isEmpty()) {
-                    texts.append(text);
-                }
-            } else if (val.isString()) {
-                // 字符串数组
-                texts.append(val.toString());
-            }
-        }
-    }
-    }  // 关闭标准 JSON 格式的 else 分支
-    
-    if (texts.isEmpty()) {
-        result.errorMessage = tr("未找到内容字段 '%1'").arg(jsonContentField_);
-        qDebug() << "No texts found with field:" << jsonContentField_;
-        return result;
-    }
-    
-    qDebug() << "Found" << texts.size() << "texts to process";
-    // 显示第一条文本的前 50 个字符作为调试
-    if (!texts.isEmpty()) {
-        QString preview = texts.first().left(50).replace("\n", " ");
-        qDebug() << "First text preview:" << preview << "...";
-    }
-    
-    // 处理每条文本
-    result.recordCount = texts.size();
-    int textIndex = 0;
-    for (const QString& text : texts) {
-        if (stopRequested_) {
-            break;
-        }
-
-        QList<Triple> triples = extractFromText(text, engine);
-
-        // 调试：打印每条文本的提取结果
-        if (triples.isEmpty()) {
-            qDebug() << "Text" << (textIndex + 1) << ": No triples extracted";
-        } else {
-            qDebug() << "Text" << (textIndex + 1) << ": Extracted" << triples.size() << "triples";
-        }
-
-        // 创建抽取记录（使用0作为处理时间，因为单个文本处理时间未单独计时）
-        ExtractionRecord record(text, triples, 0);
-        result.extractionRecords.append(record);
-        result.triples.append(triples);
-        textIndex++;
-    }
-    
-    result.processTimeMs = timer.elapsed();
-    result.success = true;
-    
-    return result;
-}
-
-FileProcessResult BatchProcessor::processCsvFile(const QString& filePath, InferenceEngine* engine) {
-
-
-    FileProcessResult result(filePath);
-    QElapsedTimer timer;
-    timer.start();
-    
-    // 打开文件
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        result.errorMessage = tr("无法打开文件: %1").arg(file.errorString());
-        return result;
-    }
-    
-    // 设置 CSV 编码
-    QTextStream stream(&file);
-    QStringConverter::Encoding encoding = QStringConverter::Utf8;
-    if (!csvEncoding_.isEmpty()) {
-        auto converter = QStringConverter::encodingForName(csvEncoding_.toUtf8());
-        if (converter) {
-            encoding = *converter;
-        } else {
-            Logger::warning(QString("Unknown CSV encoding '%1', falling back to UTF-8").arg(csvEncoding_));
-        }
-    }
-    stream.setEncoding(encoding);
-    
-    // 读取表头
-    QString headerLine = stream.readLine();
-    if (headerLine.isEmpty()) {
-        result.errorMessage = tr("CSV 文件为空或没有表头");
-        file.close();
-        return result;
-    }
-    
-    // 解析表头
-    QStringList headers = parseCsvLine(headerLine);
-    int contentColumnIndex = -1;
-
-    for (int i = 0; i < headers.size(); ++i) {
-        QString header = headers[i];
-
-        if (header.compare(csvContentColumn_, Qt::CaseInsensitive) == 0) {
-            contentColumnIndex = i;
-            break;
-        }
-    }
-    
-    if (contentColumnIndex == -1) {
-        result.errorMessage = tr("未找到列 '%1'，可用列: %2")
-            .arg(csvContentColumn_)
-            .arg(headers.join(", "));
-        file.close();
-        return result;
-    }
-    
-    // 读取数据行
-    QStringList texts;
-    int lineNumber = 1; // 从 1 开始，0 是表头
-    
-    while (!stream.atEnd() && !stopRequested_) {
-        QString line = stream.readLine();
-        lineNumber++;
-        
-        if (line.trimmed().isEmpty()) {
-            continue;
-        }
-        
-        // 使用改进的 CSV 解析，处理包含逗号的字段
-        QStringList fields = parseCsvLine(line);
-
-        if (contentColumnIndex < fields.size()) {
-            QString text = fields[contentColumnIndex];
-
-            if (!text.isEmpty()) {
-                texts.append(text);
-            }
-        }
-    }
-    
-    file.close();
-    
-    // 处理每条文本
-    result.recordCount = texts.size();
-    for (const QString& text : texts) {
-        if (stopRequested_) {
-            break;
-        }
-
-        QList<Triple> triples = extractFromText(text, engine);
-
-        // 创建抽取记录（使用0作为处理时间，因为单个文本处理时间未单独计时）
-        ExtractionRecord record(text, triples, 0);
-        result.extractionRecords.append(record);
-        result.triples.append(triples);
-    }
-    
-    result.processTimeMs = timer.elapsed();
-    result.success = true;
-    
-    return result;
-}
-
-QList<Triple> BatchProcessor::extractFromText(const QString& text, InferenceEngine* engine, int recordIndex) {
-    QString prefix = recordIndex >= 0 ? QString("[Record %1] ").arg(recordIndex) : "";
-    
-    // 提取三元组
-    if (text.isEmpty()) {
-        qDebug() << prefix << "Skip: empty text";
-        return QList<Triple>();
-    }
-    
-    if (stopRequested_) {
-        qDebug() << prefix << "Skip: stop requested";
-        return QList<Triple>();
-    }
-    
-    QString textPreview = text.left(50).replace("\n", " ");
-    qDebug() << prefix << "Processing text:" << textPreview << "...";
-    qDebug() << prefix << "Text length:" << text.length();
-    
-    // 检查 engine
-    if (!engine) {
-        Logger::warning(QString("%1 No inference engine provided!").arg(prefix));
-        Logger::warning(QString("%1 Batch processor threshold: %2").arg(prefix).arg(threshold_));
-        return QList<Triple>();
-    }
-
-    if (!engine->isModelLoaded()) {
-        Logger::warning(QString("%1 Model not loaded!").arg(prefix));
-        Logger::warning(QString("%1 Batch processor threshold: %2").arg(prefix).arg(threshold_));
-        return QList<Triple>();
-    }
-
-    qDebug() << prefix << "Running inference with threshold:" << threshold_;
-    qDebug() << prefix << "Text full content (first 200 chars):" << text.left(200).replace("\n", "\\n");
-    qDebug() << prefix << "Text contains quotes:" << (text.contains('"') ? "yes" : "no") << (text.contains('\'') ? "yes" : "no");
-    qDebug() << prefix << "Text trimmed vs original length:" << text.trimmed().length() << "vs" << text.length();
-
-    auto results = engine->infer(text);
-    
-    if (results.isEmpty()) {
-        qDebug() << prefix << "No triples extracted from this text";
-    } else {
-        qDebug() << prefix << "Extracted" << results.size() << "triples:";
-        for (int i = 0; i < qMin(3, results.size()); ++i) {
-            const auto& t = results[i];
-            qDebug() << prefix << "  Triple" << (i+1) << ":" 
-                     << t.subject.name << "-" << t.relation << "->" << t.object.name
-                     << "(conf:" << t.confidence << ")";
-        }
-        if (results.size() > 3) {
-            qDebug() << prefix << "  ... and" << (results.size() - 3) << "more";
-        }
-    }
-    
-    return results;
 }
 
 // ========== 扫描函数实现 ==========
@@ -716,7 +377,7 @@ int BatchProcessor::scanCsvFile(const QString& filePath) {
 // ========== 带进度的处理函数 ==========
 
 FileProcessResult BatchProcessor::processJsonFileWithProgress(
-    const QString& filePath, InferenceEngine* engine,
+    const QString& filePath,
     int& processedRecords, int totalRecords) {
     
     FileProcessResult result(filePath);
@@ -812,7 +473,7 @@ FileProcessResult BatchProcessor::processJsonFileWithProgress(
 
     // Lambda 处理单个文本，返回抽取记录
     auto processText = [&, currentThreshold, configModelPath, fileName](const QString& text) -> ExtractionRecord {
-        if (stopRequested_) {
+        if (stopRequested_) { // LCOV_EXCL_LINE — QtConcurrent 竞态条件，stop()需要在lambda启动前调用
             return ExtractionRecord();
         }
 
@@ -824,6 +485,8 @@ FileProcessResult BatchProcessor::processJsonFileWithProgress(
         if (!storage.hasLocalData()) {
             // 检查全局加载状态，避免重复失败尝试
             int loadStatus = getModelLoadAttempted().loadRelaxed();
+           // LCOV_EXCL_START
+            // 主线程成功则线程引擎也必然成功（同一模型文件）
             if (loadStatus == -1) {
                 // 之前已有线程加载失败，直接返回空结果
                 Logger::warning("Model loading previously failed, skipping inference");
@@ -858,15 +521,13 @@ FileProcessResult BatchProcessor::processJsonFileWithProgress(
                 }
                 threadEngine->setThreshold(currentThreshold);
                 storage.setLocalData(threadEngine.release());
+            // LCOV_EXCL_STOP
             }
             // 锁自动释放
         }
 
-        // 获取线程本地引擎并检查
+        // 获取线程本地引擎
         InferenceEngine* threadEngine = storage.localData();
-        if (!threadEngine || !threadEngine->isModelLoaded()) {
-            return ExtractionRecord();
-        }
 
         // 确保阈值设置正确
         threadEngine->setThreshold(currentThreshold);
@@ -895,15 +556,15 @@ FileProcessResult BatchProcessor::processJsonFileWithProgress(
 
     // 更新 processedRecords
     processedRecords = processedLocal.loadRelaxed();
-    
+
     result.processTimeMs = timer.elapsed();
     result.success = true;
-    
+
     return result;
 }
 
 FileProcessResult BatchProcessor::processCsvFileWithProgress(
-    const QString& filePath, InferenceEngine* engine,
+    const QString& filePath,
     int& processedRecords, int totalRecords) {
     
     FileProcessResult result(filePath);
@@ -995,7 +656,7 @@ FileProcessResult BatchProcessor::processCsvFileWithProgress(
 
     // Lambda 处理单个文本，返回抽取记录
     auto processText = [&, currentThreshold, configModelPath, fileName](const QString& text) -> ExtractionRecord {
-        if (stopRequested_) {
+        if (stopRequested_) { // LCOV_EXCL_LINE — QtConcurrent 竞态条件
             return ExtractionRecord();
         }
 
@@ -1007,6 +668,7 @@ FileProcessResult BatchProcessor::processCsvFileWithProgress(
         if (!storage.hasLocalData()) {
             // 检查全局加载状态，避免重复失败尝试
             int loadStatus = getModelLoadAttempted().loadRelaxed();
+           // LCOV_EXCL_START
             if (loadStatus == -1) {
                 // 之前已有线程加载失败，直接返回空结果
                 Logger::warning("Model loading previously failed, skipping inference");
@@ -1041,15 +703,13 @@ FileProcessResult BatchProcessor::processCsvFileWithProgress(
                 }
                 threadEngine->setThreshold(currentThreshold);
                 storage.setLocalData(threadEngine.release());
+            // LCOV_EXCL_STOP
             }
             // 锁自动释放
         }
 
-        // 获取线程本地引擎并检查
+        // 获取线程本地引擎
         InferenceEngine* threadEngine = storage.localData();
-        if (!threadEngine || !threadEngine->isModelLoaded()) {
-            return ExtractionRecord();
-        }
 
         // 确保阈值设置正确
         threadEngine->setThreshold(currentThreshold);

@@ -21,9 +21,6 @@ public:
     explicit HistoryPanel(QWidget *parent = nullptr);
 
     void loadHistory();
-    void addRecord(const ExtractionRecord& record);
-    void removeRecord(qint64 id);
-    void clearHistory();
 
     QList<qint64> selectedRecordIds() const;
 
@@ -35,7 +32,6 @@ signals:
 
 private slots:
     void onSearch();
-    void onFilterChanged();
     void onItemClicked(int row, int column);
     void onItemDoubleClicked(int row, int column);
     void onExport();

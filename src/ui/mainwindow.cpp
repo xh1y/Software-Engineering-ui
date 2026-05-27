@@ -29,6 +29,7 @@
 #include <QDateTime>
 #include <QTimer>
 #include <QActionGroup>
+#include <QInputDialog>
 #include <QSet>
 
 // 自定义组件头文件
@@ -64,7 +65,6 @@ MainWindow::MainWindow(QWidget *parent)
     setupMenuBar();
     setupToolBar();
     setupStatusBar();
-    setupShortcuts();
     connectSignals();
 
     // 初始化配置管理器
@@ -354,10 +354,6 @@ void MainWindow::setupStatusBar() {
     statusBar_->addPermanentWidget(progressBar_);
 }
 
-void MainWindow::setupShortcuts() {
-    // 全局快捷键已在菜单中设置
-}
-
 void MainWindow::connectSignals() {
     // 连接抽取面板的信号
     connect(extractionPanel_, &ExtractionPanel::extractClicked,
@@ -538,11 +534,24 @@ void MainWindow::onClearClicked() {
 }
 
 void MainWindow::onSaveClicked() {
-    showToast(tr("保存功能尚未实现"), true);
-}
+    if (currentResults_.isEmpty()) {
+        showToast(tr("没有可保存的抽取结果"), true);
+        return;
+    }
 
-void MainWindow::onSearchClicked() {
-    showToast(tr("搜索功能尚未实现"), true);
+    QString text = extractionPanel_ ? extractionPanel_->text() : QString();
+    ExtractionRecord record(text, currentResults_, 0);
+    qint64 recordId = DatabaseManager::instance().insertExtractionRecord(record);
+
+    if (recordId > 0) {
+        showToast(tr("已保存 %1 个实体和 %2 个关系到数据库")
+            .arg(record.entityCount).arg(record.relationCount), false);
+        if (historyPanel_) {
+            historyPanel_->loadHistory();
+        }
+    } else {
+        showToast(tr("保存到数据库失败"), true);
+    }
 }
 
 void MainWindow::onBatchProcessClicked() {
